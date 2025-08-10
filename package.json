@@ -6,22 +6,36 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate": "echo Run SQL in supabase/migrations via Supabase or psql"
   },
   "dependencies": {
+    "@mapbox/mapbox-sdk": "^0.16.1",
+    "@stripe/stripe-js": "^7.8.0",
+    "@supabase/supabase-js": "^2.54.0",
+    "@tanstack/react-query": "^5.84.2",
+    "date-fns": "^4.1.0",
+    "next": "15.4.6",
+    "next-intl": "^4.3.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.6"
+    "react-hook-form": "^7.62.0",
+    "stripe": "^18.4.0",
+    "zod": "^4.0.17",
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^20.19.10",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
-    "@eslint/eslintrc": "^3"
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
