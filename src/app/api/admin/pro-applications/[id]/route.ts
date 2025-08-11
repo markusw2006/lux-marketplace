@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/auth-utils';
 
 // GET /api/admin/pro-applications/[id] - Get specific application
@@ -21,7 +21,7 @@ export async function GET(
   try {
     const applicationId = params.id;
 
-    if (!supabase) {
+    if (!supabaseAdmin) {
       // Mock data when Supabase is not configured
       const mockApplication = {
         id: 1,
@@ -45,8 +45,8 @@ export async function GET(
       return NextResponse.json({ application: mockApplication });
     }
 
-    // Get application from database
-    const { data: application, error } = await supabase
+    // Get application from database using admin client
+    const { data: application, error } = await supabaseAdmin
       .from('pro_applications')
       .select('*')
       .eq('application_id', applicationId)
@@ -97,7 +97,7 @@ export async function PATCH(
     const applicationId = params.id;
     const updates = await request.json();
 
-    if (!supabase) {
+    if (!supabaseAdmin) {
       // Mock response when Supabase is not configured
       console.log('Mock: Updating application', applicationId, 'with', updates);
       return NextResponse.json({ 
@@ -106,8 +106,8 @@ export async function PATCH(
       });
     }
 
-    // Update application in database
-    const { data, error } = await supabase
+    // Update application in database using admin client
+    const { data, error } = await supabaseAdmin
       .from('pro_applications')
       .update({
         ...updates,

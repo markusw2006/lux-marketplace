@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/auth-utils';
 
 // GET /api/admin/pro-applications - List all applications
@@ -14,14 +14,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    if (!supabase) {
+    if (!supabaseAdmin) {
       // Return empty applications array when Supabase is not configured
       // This shows the live system is working but no real data exists yet
       return NextResponse.json({ applications: [] });
     }
 
-    // Get applications from database
-    const { data: applications, error } = await supabase
+    console.log('Fetching applications from database...');
+
+    // Get applications from database using admin client
+    const { data: applications, error } = await supabaseAdmin
       .from('pro_applications')
       .select('*')
       .order('created_at', { ascending: false });
@@ -66,7 +68,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    if (!supabase) {
+    if (!supabaseAdmin) {
       // Mock response when Supabase is not configured
       console.log('Mock: Updating application', { application_id, status, admin_notes });
       return NextResponse.json({ 
@@ -75,8 +77,8 @@ export async function PATCH(request: NextRequest) {
       });
     }
 
-    // Update application in database
-    const { data, error } = await supabase
+    // Update application in database using admin client
+    const { data, error } = await supabaseAdmin
       .from('pro_applications')
       .update({
         status,
