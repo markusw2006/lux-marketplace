@@ -151,8 +151,6 @@ async function sendBookingNotifications(params: {
   windowStart?: string;
   windowEnd?: string;
 }) {
-  const { formatCurrency } = await import('@/contexts/LocaleContext');
-  
   // Format the amount for display
   const totalFormatted = `$${(params.amount / 100).toLocaleString('es-MX')} MXN`;
   
