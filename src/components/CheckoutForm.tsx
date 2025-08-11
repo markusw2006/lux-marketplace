@@ -80,19 +80,47 @@ export default function CheckoutForm({
     
     console.log('Validation passed, checking Stripe...');
     
-    // If Stripe isn't configured, simulate successful payment for testing
+    // If Stripe isn't configured, still create the booking but simulate payment
     if (!stripe || !elements) {
-      console.log('Using demo mode - no Stripe');
+      console.log('Using demo mode - no Stripe, but creating booking');
       setLoading(true);
       setError(null);
       
-      // Simulate payment processing
-      setTimeout(() => {
-        console.log('Demo payment complete, redirecting...');
-        // Redirect to booking confirmation page
-        const confirmationUrl = `/booking-confirmed?service=${encodeURIComponent(serviceId)}&total=${totalAmount}&date=${new Date().toLocaleDateString()}`;
-        window.location.href = confirmationUrl;
-      }, 2000);
+      try {
+        // Create booking record even in demo mode
+        const response = await fetch('/api/bookings/instant', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            serviceId,
+            addons,
+            windowStart,
+            windowEnd,
+            customerInfo
+          }),
+        });
+
+        const result = await response.json();
+        console.log('Demo mode booking creation result:', result);
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to create booking');
+        }
+
+        // Simulate payment processing delay
+        setTimeout(() => {
+          console.log('Demo payment complete, redirecting...');
+          const confirmationUrl = `/booking-confirmed?service=${encodeURIComponent(serviceId)}&total=${totalAmount}&date=${new Date().toLocaleDateString()}`;
+          window.location.href = confirmationUrl;
+        }, 1000);
+        
+      } catch (error) {
+        console.error('Demo mode booking creation failed:', error);
+        setError(error instanceof Error ? error.message : 'Failed to create booking');
+        setLoading(false);
+      }
       
       return;
     }
