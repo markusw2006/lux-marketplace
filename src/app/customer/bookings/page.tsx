@@ -6,6 +6,17 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useLocale } from '@/contexts/LocaleContext';
 
+interface Booking {
+  id: string;
+  service_title: string;
+  status: string;
+  scheduled_date: string;
+  total_amount: number;
+  pro_name: string | null;
+  pro_phone: string | null;
+  created_at: string;
+}
+
 export default function BookingsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -76,7 +87,7 @@ export default function BookingsPage() {
   }
 
   // Mock data for demonstration + real bookings from database
-  const [bookings, setBookings] = useState([
+  const [bookings, setBookings] = useState<Booking[]>([
     {
       id: '1',
       service_title: 'Deep Cleaning Service',
