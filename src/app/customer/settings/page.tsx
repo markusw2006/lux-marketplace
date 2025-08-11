@@ -19,8 +19,8 @@ export default function CustomerSettingsPage() {
     street: '',
     colonia: '',
     alcaldia: '',
-    city: 'Ciudad de México',
-    state: 'CDMX',
+    city: 'Mexico City',
+    state: 'Mexico City',
     postalCode: ''
   });
 
@@ -217,7 +217,7 @@ export default function CustomerSettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Colonia *
+                        Neighborhood *
                       </label>
                       <input
                         type="text"
@@ -230,7 +230,7 @@ export default function CustomerSettingsPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Alcaldía *
+                        Borough *
                       </label>
                       <select
                         value={formData.alcaldia}
@@ -238,18 +238,18 @@ export default function CustomerSettingsPage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                         required
                       >
-                        <option value="">Select Alcaldía</option>
+                        <option value="">Select Borough</option>
                         <option value="Álvaro Obregón">Álvaro Obregón</option>
                         <option value="Azcapotzalco">Azcapotzalco</option>
-                        <option value="Benito Juárez">Benito Juárez</option>
+                        <option value="Benito Juárez">Benito Juárez (Roma, Condesa)</option>
                         <option value="Coyoacán">Coyoacán</option>
                         <option value="Cuajimalpa de Morelos">Cuajimalpa de Morelos</option>
-                        <option value="Cuauhtémoc">Cuauhtémoc</option>
+                        <option value="Cuauhtémoc">Cuauhtémoc (Centro, Zona Rosa)</option>
                         <option value="Gustavo A. Madero">Gustavo A. Madero</option>
                         <option value="Iztacalco">Iztacalco</option>
                         <option value="Iztapalapa">Iztapalapa</option>
                         <option value="La Magdalena Contreras">La Magdalena Contreras</option>
-                        <option value="Miguel Hidalgo">Miguel Hidalgo</option>
+                        <option value="Miguel Hidalgo">Miguel Hidalgo (Polanco, Santa Fe)</option>
                         <option value="Milpa Alta">Milpa Alta</option>
                         <option value="Tláhuac">Tláhuac</option>
                         <option value="Tlalpan">Tlalpan</option>
