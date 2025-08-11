@@ -62,8 +62,7 @@ export default function SignUpPage() {
       if (error) throw error;
 
       if (data.user) {
-        alert('Please check your email to verify your account');
-        router.push('/login');
+        router.push('/auth/signup-confirmation');
       }
     } catch (error: any) {
       setError(error.message);
