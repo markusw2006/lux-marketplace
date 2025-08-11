@@ -9,6 +9,40 @@ export default function BookingsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [success, setSuccess] = useState(false);
+  
+  // Mock data for demonstration - moved up to avoid conditional hook call
+  const [bookings] = useState([
+    {
+      id: '1',
+      service_title: 'Deep Cleaning Service',
+      status: 'completed',
+      scheduled_date: '2025-01-08T10:00:00Z',
+      total_amount: 850,
+      pro_name: 'María González',
+      pro_phone: '+52 55 1111-2222',
+      created_at: '2025-01-05T08:00:00Z'
+    },
+    {
+      id: '2',
+      service_title: 'Plumbing Repair',
+      status: 'accepted',
+      scheduled_date: '2025-01-15T14:00:00Z',
+      total_amount: 650,
+      pro_name: 'Carlos Ruiz',
+      pro_phone: '+52 55 3333-4444',
+      created_at: '2025-01-10T15:30:00Z'
+    },
+    {
+      id: '3',
+      service_title: 'Electrical Installation',
+      status: 'pending',
+      scheduled_date: '2025-01-18T09:00:00Z',
+      total_amount: 1200,
+      pro_name: null,
+      pro_phone: null,
+      created_at: '2025-01-11T11:00:00Z'
+    }
+  ]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -50,16 +84,16 @@ export default function BookingsPage() {
           
           <p className="text-gray-600 mb-6">
             Your payment was successful and your service has been booked. 
-            You'll receive a confirmation email shortly with all the details.
+            You&apos;ll receive a confirmation email shortly with all the details.
           </p>
           
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <h3 className="font-medium text-blue-800 mb-2">What happens next?</h3>
             <ul className="text-sm text-blue-700 text-left space-y-1">
-              <li>• We'll assign a professional within 5 minutes</li>
+              <li>• We&apos;ll assign a professional within 5 minutes</li>
               <li>• The pro will contact you to confirm details</li>
               <li>• Service will be completed on your scheduled date</li>
-              <li>• You'll receive an invoice after completion</li>
+              <li>• You&apos;ll receive an invoice after completion</li>
             </ul>
           </div>
           
@@ -81,40 +115,6 @@ export default function BookingsPage() {
       </div>
     );
   }
-
-  // Mock data for demonstration
-  const [bookings] = useState([
-    {
-      id: '1',
-      service_title: 'Deep Cleaning Service',
-      status: 'completed',
-      scheduled_date: '2025-01-08T10:00:00Z',
-      total_amount: 850,
-      pro_name: 'María González',
-      pro_phone: '+52 55 1111-2222',
-      created_at: '2025-01-05T08:00:00Z'
-    },
-    {
-      id: '2',
-      service_title: 'Plumbing Repair',
-      status: 'accepted',
-      scheduled_date: '2025-01-15T14:00:00Z',
-      total_amount: 650,
-      pro_name: 'Carlos Ruiz',
-      pro_phone: '+52 55 3333-4444',
-      created_at: '2025-01-10T15:30:00Z'
-    },
-    {
-      id: '3',
-      service_title: 'Electrical Installation',
-      status: 'pending',
-      scheduled_date: '2025-01-18T09:00:00Z',
-      total_amount: 1200,
-      pro_name: null,
-      pro_phone: null,
-      created_at: '2025-01-11T11:00:00Z'
-    }
-  ]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -159,7 +159,7 @@ export default function BookingsPage() {
             </h2>
             
             <p className="text-gray-600 mb-6">
-              When you book services, they'll appear here so you can track their progress.
+              When you book services, they&apos;ll appear here so you can track their progress.
             </p>
             
             <Link 
