@@ -128,15 +128,48 @@ export default function CheckoutForm({
     const cardElement = elements.getElement(CardElement);
     console.log('CardElement found:', !!cardElement);
     if (!cardElement) {
-      console.log('No CardElement found - user might be using saved payment method');
-      // For now, simulate payment for logged-in users without card element
+      console.log('No CardElement found - creating booking without card payment');
       setLoading(true);
       setError(null);
-      setTimeout(() => {
-        console.log('Simulated payment for logged-in user, redirecting...');
-        const confirmationUrl = `/booking-confirmed?service=${encodeURIComponent(serviceId)}&total=${totalAmount}&date=${new Date().toLocaleDateString()}`;
-        window.location.href = confirmationUrl;
-      }, 2000);
+      
+      try {
+        // Create booking record even without card element
+        const response = await fetch('/api/bookings/instant', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            serviceId,
+            addons,
+            windowStart,
+            windowEnd,
+            customerInfo: addressOption === 'saved' ? 
+              {...customerInfo, address: customerInfo.address || 'Av. Insurgentes Sur 1457, Col. San José Insurgentes, Benito Juárez, 03900 CDMX'} : 
+              customerInfo
+          }),
+        });
+
+        const result = await response.json();
+        console.log('No-card booking creation result:', result);
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to create booking');
+        }
+
+        // Simulate payment processing delay
+        setTimeout(() => {
+          console.log('Simulated payment for logged-in user, redirecting...');
+          const confirmationUrl = `/booking-confirmed?service=${encodeURIComponent(serviceId)}&total=${totalAmount}&date=${new Date().toLocaleDateString()}`;
+          window.location.href = confirmationUrl;
+        }, 1000);
+        
+      } catch (error) {
+        console.error('No-card booking creation failed:', error);
+        setError(error instanceof Error ? error.message : 'Failed to create booking');
+        setLoading(false);
+      }
+      
       return;
     }
 
