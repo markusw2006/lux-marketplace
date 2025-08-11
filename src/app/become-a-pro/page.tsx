@@ -41,7 +41,20 @@ export default function BecomeAProPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Basic validation
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    if (formData.services.length === 0) {
+      alert('Please select at least one service');
+      return;
+    }
+    
     try {
+      console.log('Submitting application:', formData);
+      
       const response = await fetch('/api/pro-applications', {
         method: 'POST',
         headers: {
@@ -50,16 +63,22 @@ export default function BecomeAProPage() {
         body: JSON.stringify(formData),
       });
 
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Failed to submit application');
+        const errorData = await response.text();
+        console.error('Response error:', errorData);
+        throw new Error(`HTTP ${response.status}: ${errorData}`);
       }
 
       const result = await response.json();
+      console.log('Success result:', result);
+      
       const applicantName = `${formData.firstName} ${formData.lastName}`;
       router.push(`/become-a-pro/confirmation?name=${encodeURIComponent(applicantName)}&id=${result.applicationId}`);
     } catch (error) {
       console.error('Error submitting application:', error);
-      alert('Failed to submit application. Please try again.');
+      alert(`Failed to submit application: ${error.message}`);
     }
   };
 
