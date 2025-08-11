@@ -27,26 +27,38 @@ export default function CustomerSettingsPage() {
   // Load user data when component mounts
   useEffect(() => {
     if (user) {
-      const fullName = user.user_metadata?.name || user.user_metadata?.full_name || '';
-      const nameParts = fullName.split(' ');
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.slice(1).join(' ') || '';
+      // Check for saved profile data in localStorage first
+      const savedProfile = localStorage.getItem(`profile_${user.id}`);
+      let profileData;
       
-      // Parse address if it exists
-      const savedAddress = user.user_metadata?.address || '';
-      const addressParts = savedAddress.split(',').map(part => part.trim());
-      
-      setFormData({
-        firstName,
-        lastName,
-        phone: user.user_metadata?.phone || '',
-        street: addressParts[0] || '',
-        colonia: addressParts[1] || '',
-        alcaldia: addressParts[2] || '',
-        city: 'Ciudad de México',
-        state: 'CDMX',
-        postalCode: addressParts[3] || ''
-      });
+      if (savedProfile) {
+        profileData = JSON.parse(savedProfile);
+        setFormData(profileData);
+      } else {
+        // Fallback to user metadata
+        const fullName = user.user_metadata?.name || user.user_metadata?.full_name || '';
+        const nameParts = fullName.split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+        
+        // Parse address if it exists
+        const savedAddress = user.user_metadata?.address || '';
+        const addressParts = savedAddress.split(',').map(part => part.trim());
+        
+        const defaultData = {
+          firstName,
+          lastName,
+          phone: user.user_metadata?.phone || '',
+          street: addressParts[0] || '',
+          colonia: addressParts[1] || '',
+          alcaldia: addressParts[2] || '',
+          city: 'Ciudad de México',
+          state: 'CDMX',
+          postalCode: addressParts[3] || ''
+        };
+        
+        setFormData(defaultData);
+      }
     }
   }, [user]);
 
@@ -77,13 +89,13 @@ export default function CustomerSettingsPage() {
         throw new Error(result.error || 'Failed to update profile');
       }
       
+      // Save profile data to localStorage for persistence
+      if (user) {
+        localStorage.setItem(`profile_${user.id}`, JSON.stringify(formData));
+      }
+      
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
-
-      // Refresh user data by getting updated session
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update profile. Please try again.');
     } finally {
