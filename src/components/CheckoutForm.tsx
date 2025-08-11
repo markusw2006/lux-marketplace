@@ -427,7 +427,7 @@ export default function CheckoutForm({
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={!stripe || loading}
+        disabled={loading}
         className={`w-full py-3 px-4 rounded-lg font-medium transition-colors text-lg ${
           loading
             ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
