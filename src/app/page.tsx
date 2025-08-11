@@ -5,12 +5,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { services } from '@/data/seed/services';
 import { useLocale } from '@/contexts/LocaleContext';
+import SearchPopup from '@/components/SearchPopup';
 
 export default function HomePage() {
   const router = useRouter();
   const { t, formatCurrency, currency } = useLocale();
   const [searchQuery, setSearchQuery] = useState('');
   const [zipCode, setZipCode] = useState('06700');
+  const [showSearchPopup, setShowSearchPopup] = useState(false);
   
   const valueProps = t('value-props') as string[];
 
@@ -28,8 +30,8 @@ export default function HomePage() {
     
     if (!searchQuery.trim()) return;
     
-    // Always go to search results page to show multiple options
-    router.push(`/search?q=${encodeURIComponent(searchQuery)}&zip=${zipCode}`);
+    // Show popup instead of navigating to search page
+    setShowSearchPopup(true);
   };
 
   const categories = [
@@ -293,6 +295,14 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Search Popup */}
+      <SearchPopup 
+        isOpen={showSearchPopup}
+        onClose={() => setShowSearchPopup(false)}
+        searchQuery={searchQuery}
+        zipCode={zipCode}
+      />
     </div>
   );
 }

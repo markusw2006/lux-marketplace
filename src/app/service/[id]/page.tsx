@@ -5,13 +5,14 @@ import Configurator from './Configurator';
 import { getServiceById } from '@/lib/pricing';
 import { notFound } from 'next/navigation';
 import { useLocale } from '@/contexts/LocaleContext';
+import SearchParamsWrapper from '@/components/SearchParamsWrapper';
 import { use } from 'react';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function ServicePage({ params }: PageProps) {
+function ServicePageContent({ params }: PageProps) {
   const { id } = use(params);
   const { formatCurrency, locale, t } = useLocale();
   
@@ -174,5 +175,13 @@ export default function ServicePage({ params }: PageProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ServicePage({ params }: PageProps) {
+  return (
+    <SearchParamsWrapper>
+      <ServicePageContent params={params} />
+    </SearchParamsWrapper>
   );
 }

@@ -1,12 +1,17 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { services } from '@/data/seed/services';
+import SearchPopup from '@/components/SearchPopup';
 
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
-
-export default async function CategoryPage({ params }: PageProps) {
-  const { slug } = await params;
+export default function CategoryPage() {
+  const params = useParams();
+  const slug = params.slug as string;
+  const [showSearchPopup, setShowSearchPopup] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [zipCode, setZipCode] = useState('06700');
   
   // Get services for this category
   const categoryServices = services.filter(service => service.category_slug === slug);
@@ -24,6 +29,12 @@ export default async function CategoryPage({ params }: PageProps) {
   };
 
   const categoryName = categoryNames[slug] || 'Services';
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    setShowSearchPopup(true);
+  };
 
   if (categoryServices.length === 0) {
     return (
@@ -48,6 +59,25 @@ export default async function CategoryPage({ params }: PageProps) {
           <p className="text-gray-600">
             Professional {categoryName.toLowerCase()} with upfront pricing and instant booking
           </p>
+          
+          {/* Search Bar */}
+          <div className="mt-6">
+            <form onSubmit={handleSearch} className="flex gap-3 max-w-lg">
+              <input
+                type="text"
+                placeholder={`Search ${categoryName.toLowerCase()}...`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
+              />
+              <button
+                type="submit"
+                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+              >
+                Search
+              </button>
+            </form>
+          </div>
         </div>
 
         <div className="space-y-8">
@@ -131,6 +161,14 @@ export default async function CategoryPage({ params }: PageProps) {
           )}
         </div>
       </div>
+
+      {/* Search Popup */}
+      <SearchPopup
+        isOpen={showSearchPopup}
+        onClose={() => setShowSearchPopup(false)}
+        searchQuery={searchQuery}
+        zipCode={zipCode}
+      />
     </div>
   );
 }

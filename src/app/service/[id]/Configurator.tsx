@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useLocale } from '@/contexts/LocaleContext';
 
 interface Addon {
@@ -20,13 +21,55 @@ interface Service {
 
 interface ConfiguratorProps {
   service: Service;
+  prefilledPro?: string; // Professional ID if coming from pros page
 }
 
-export default function Configurator({ service }: ConfiguratorProps) {
+export default function Configurator({ service, prefilledPro }: ConfiguratorProps) {
   const { formatCurrency, t } = useLocale();
+  const searchParams = useSearchParams();
   const [selectedAddons, setSelectedAddons] = useState<{ [key: string]: number }>({});
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [selectedPro, setSelectedPro] = useState<string>(prefilledPro || '');
+  
+  // Service-specific filter states
+  const [bedrooms, setBedrooms] = useState<number | undefined>();
+  const [bathrooms, setBathrooms] = useState<number | undefined>();
+  const [cleaningType, setCleaningType] = useState<string>('');
+  const [propertyType, setPropertyType] = useState<string>('');
+  const [urgency, setUrgency] = useState<string>('');
+  const [propertySize, setPropertySize] = useState<string>('');
+  
+  // Load pre-filled values from URL parameters
+  useEffect(() => {
+    const pro = searchParams.get('pro');
+    const date = searchParams.get('date');
+    const time = searchParams.get('time');
+    const bedroomsParam = searchParams.get('bedrooms');
+    const bathroomsParam = searchParams.get('bathrooms');
+    const cleaningTypeParam = searchParams.get('cleaning_type');
+    const propertyTypeParam = searchParams.get('property_type');
+    const urgencyParam = searchParams.get('urgency');
+    const propertySizeParam = searchParams.get('property_size');
+    
+    if (pro) setSelectedPro(pro);
+    if (date) setSelectedDate(date);
+    if (time) {
+      // Map time preference to time slot
+      const timeMap: { [key: string]: string } = {
+        'morning': '9:00 AM - 11:00 AM',
+        'afternoon': '1:00 PM - 3:00 PM',
+        'evening': '5:00 PM - 7:00 PM'
+      };
+      setSelectedTime(timeMap[time] || time);
+    }
+    if (bedroomsParam) setBedrooms(parseInt(bedroomsParam));
+    if (bathroomsParam) setBathrooms(parseInt(bathroomsParam));
+    if (cleaningTypeParam) setCleaningType(cleaningTypeParam);
+    if (propertyTypeParam) setPropertyType(propertyTypeParam);
+    if (urgencyParam) setUrgency(urgencyParam);
+    if (propertySizeParam) setPropertySize(propertySizeParam);
+  }, [searchParams]);
 
   // Calculate total price
   const basePrice = service.price;
@@ -62,11 +105,27 @@ export default function Configurator({ service }: ConfiguratorProps) {
 
   const handleBooking = () => {
     // In a real app, this would navigate to checkout with selected options
-    const addonParams = Object.entries(selectedAddons)
-      .map(([id, qty]) => `${id}=${qty}`)
-      .join('&');
+    const params = new URLSearchParams();
     
-    const checkoutUrl = `/checkout/${service.id}?${addonParams}&date=${selectedDate}&time=${selectedTime}`;
+    // Add addons
+    Object.entries(selectedAddons).forEach(([id, qty]) => {
+      params.set(id, qty.toString());
+    });
+    
+    // Add booking details
+    if (selectedDate) params.set('date', selectedDate);
+    if (selectedTime) params.set('time', selectedTime);
+    if (selectedPro) params.set('pro', selectedPro);
+    
+    // Add service-specific parameters
+    if (bedrooms) params.set('bedrooms', bedrooms.toString());
+    if (bathrooms) params.set('bathrooms', bathrooms.toString());
+    if (cleaningType) params.set('cleaning_type', cleaningType);
+    if (propertyType) params.set('property_type', propertyType);
+    if (urgency) params.set('urgency', urgency);
+    if (propertySize) params.set('property_size', propertySize);
+    
+    const checkoutUrl = `/checkout/${service.id}?${params.toString()}`;
     window.location.href = checkoutUrl;
   };
 
@@ -91,6 +150,57 @@ export default function Configurator({ service }: ConfiguratorProps) {
           </div>
         </div>
       </div>
+
+      {/* Pre-filled Filters (if coming from pros page) */}
+      {(bedrooms || bathrooms || cleaningType || propertyType || urgency || propertySize) && (
+        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+          <h3 className="font-medium text-gray-900 mb-3">Your Selections</h3>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {bedrooms && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                {bedrooms} bedroom{bedrooms > 1 ? 's' : ''}
+              </span>
+            )}
+            {bathrooms && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                {bathrooms} bathroom{bathrooms > 1 ? 's' : ''}
+              </span>
+            )}
+            {cleaningType && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                {cleaningType.replace('-', ' ')} cleaning
+              </span>
+            )}
+            {propertyType && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                {propertyType}
+              </span>
+            )}
+            {urgency && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                {urgency} service
+              </span>
+            )}
+            {propertySize && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                {propertySize} property
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-blue-600">These selections from your search are included in the service configuration.</p>
+        </div>
+      )}
+
+      {/* Selected Professional (if coming from pros page) */}
+      {selectedPro && (
+        <div className="mb-6 p-4 bg-green-50 rounded-lg">
+          <h3 className="font-medium text-gray-900 mb-2">Selected Professional</h3>
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-sm text-green-700">You&apos;ll be booked with professional: {selectedPro}</span>
+          </div>
+        </div>
+      )}
 
       {/* Add-ons */}
       <div className="mb-6">
