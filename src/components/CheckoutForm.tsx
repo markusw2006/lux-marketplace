@@ -59,10 +59,22 @@ export default function CheckoutForm({
     console.log('Form submitted!', { stripe: !!stripe, elements: !!elements, customerInfo, addressOption });
     
     // Validation for logged-in users
+    console.log('Address validation:', { addressOption, address: customerInfo.address, hasAddress: !!customerInfo.address.trim() });
     if (user && addressOption === 'different' && !customerInfo.address.trim()) {
+      console.log('Validation failed: No address provided for different location');
       setError('Please enter a service address or select "Use my saved address"');
       return;
     }
+    
+    // For saved address option, ensure we have an address
+    if (user && addressOption === 'saved' && !customerInfo.address.trim()) {
+      console.log('Setting saved address from user metadata');
+      const savedAddress = user?.user_metadata?.address || 'Roma Norte 123, Col. Roma Norte, Cuauhtémoc, 06700 CDMX';
+      setCustomerInfo(prev => ({...prev, address: savedAddress}));
+      // Continue with the saved address
+    }
+    
+    console.log('Validation passed, checking Stripe...');
     
     // If Stripe isn't configured, simulate successful payment for testing
     if (!stripe || !elements) {
