@@ -4,19 +4,13 @@ import { mockAuth } from './mock-auth';
 
 export async function requireAdmin(request: NextRequest) {
   try {
-    console.log('RequireAdmin: Checking admin access...');
-    console.log('RequireAdmin: supabase exists?', !!supabase);
-    console.log('RequireAdmin: supabaseAdmin exists?', !!supabaseAdmin);
-    
     // For now, since we have supabaseAdmin configured, allow admin access
     // TODO: Implement proper session-based admin authentication later
     if (supabaseAdmin) {
-      console.log('RequireAdmin: Allowing admin access (supabaseAdmin available)');
       return { user: { role: 'admin' } };
     }
     
     if (!supabase) {
-      console.log('RequireAdmin: Using mock mode - no supabase');
       return { user: { role: 'admin' } };
     }
 
