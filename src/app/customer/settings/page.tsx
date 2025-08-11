@@ -63,14 +63,29 @@ export default function CustomerSettingsPage() {
     setError(null);
 
     try {
-      // In a real app, this would update the user's profile via API
-      // For now, we'll simulate a successful update
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update profile');
+      }
       
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
+
+      // Refresh user data by getting updated session
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err) {
-      setError('Failed to update profile. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
     }
