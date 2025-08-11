@@ -36,12 +36,18 @@ export default function SimpleProApplicationsPage() {
   const fetchApplications = async () => {
     setLoading(true);
     try {
+      console.log('Fetching applications from API...');
       const response = await fetch('/api/admin/pro-applications');
+      console.log('Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('API Response data:', data);
+        console.log('Applications found:', data.applications?.length || 0);
         setApplications(data.applications || []);
       } else {
-        console.error('Failed to fetch applications');
+        const errorText = await response.text();
+        console.error('Failed to fetch applications:', response.status, errorText);
         // Fallback to empty array to show "no applications" state
         setApplications([]);
       }
