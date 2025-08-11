@@ -88,24 +88,42 @@ export default function BookingsPage() {
 
   // Live bookings from database
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Add newest booking at the top when success=true
+  // Fetch bookings from API
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/bookings');
+      const data = await response.json();
+      
+      console.log('Bookings API response:', data);
+      
+      if (data.bookings) {
+        setBookings(data.bookings);
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load bookings on mount
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  // Handle success redirect from checkout
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
-      const newBooking = {
-        id: 'new-' + Date.now(),
-        service_title: 'Basic Cleaning Service',
-        status: 'pending',
-        scheduled_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-        total_amount: 127,
-        pro_name: null,
-        pro_phone: null,
-        created_at: new Date().toISOString()
-      };
-      
-      setBookings(prev => [newBooking, ...prev]);
       setSuccess(true);
+      
+      // Refresh bookings to show the new one
+      setTimeout(() => {
+        fetchBookings();
+      }, 1000);
       
       // Clear the success parameter from URL
       window.history.replaceState({}, '', '/customer/bookings');
@@ -150,7 +168,19 @@ export default function BookingsPage() {
           <p className="text-gray-600">Track your service bookings and history</p>
         </div>
 
-        {bookings.length === 0 ? (
+        {loading ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Loading your bookings...
+            </h2>
+            <p className="text-gray-600">
+              Please wait while we fetch your service history.
+            </p>
+          </div>
+        ) : bookings.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
