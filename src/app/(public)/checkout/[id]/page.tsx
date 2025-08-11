@@ -316,7 +316,19 @@ export default function CheckoutPage({ params }: PageProps) {
                     </div>
                   </div>
                   
-                  <Elements stripe={stripePromise}>
+                  {stripePromise ? (
+                    <Elements stripe={stripePromise}>
+                      <CheckoutForm
+                        serviceId={serviceId}
+                        addons={addons}
+                        totalAmount={totalAmount}
+                        windowStart={selectedDate && selectedTime ? `${selectedDate} ${selectedTime.split(' - ')[0]}` : undefined}
+                        windowEnd={selectedDate && selectedTime ? `${selectedDate} ${selectedTime.split(' - ')[1]}` : undefined}
+                        professionalId={selectedPro}
+                        user={user}
+                      />
+                    </Elements>
+                  ) : (
                     <CheckoutForm
                       serviceId={serviceId}
                       addons={addons}
@@ -326,7 +338,7 @@ export default function CheckoutPage({ params }: PageProps) {
                       professionalId={selectedPro}
                       user={user}
                     />
-                  </Elements>
+                  )}
                 </>
               )}
             </div>
