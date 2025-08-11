@@ -2,10 +2,10 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useLocale } from '@/contexts/LocaleContext';
 
-export default function BookingConfirmedPage() {
+function BookingConfirmedContent() {
   const searchParams = useSearchParams();
   const { t, formatCurrency } = useLocale();
   const [bookingDetails, setBookingDetails] = useState({
@@ -105,5 +105,13 @@ export default function BookingConfirmedPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BookingConfirmedPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div>Loading...</div></div>}>
+      <BookingConfirmedContent />
+    </Suspense>
   );
 }
