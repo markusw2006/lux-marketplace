@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     let bookingId = null;
     if (sb) {
       try {
-        const { data, error } = await sb.from("bookings").insert({
+        const bookingData = {
           service_id: parseInt(serviceId, 10) || null,
           customer_id: null,
           fixed_price_total: amount,
@@ -40,13 +40,23 @@ export async function POST(req: NextRequest) {
           sla_window_start: windowStart,
           sla_window_end: windowEnd,
           status: 'booked'
-        }).select().single();
+        };
+        
+        console.log('Attempting to create booking:', bookingData);
+        
+        const { data, error } = await sb.from("bookings").insert(bookingData).select().single();
+        
+        if (error) {
+          console.error('Supabase booking insert error:', error);
+          console.error('Error details:', { code: error.code, message: error.message, details: error.details });
+        }
         
         if (data) {
           bookingId = data.id;
+          console.log('Booking created successfully with ID:', bookingId);
         }
       } catch (error) {
-        console.error('Failed to create booking:', error);
+        console.error('Failed to create booking (catch block):', error);
       }
     }
     
@@ -97,7 +107,7 @@ export async function POST(req: NextRequest) {
     let bookingId = null;
     if (sb) {
       try {
-        const { data, error } = await sb.from("bookings").insert({
+        const bookingData = {
           service_id: parseInt(serviceId, 10) || null, // Convert string ID to number
           customer_id: null, // We don't have user auth yet
           fixed_price_total: amount,
@@ -105,13 +115,23 @@ export async function POST(req: NextRequest) {
           sla_window_start: windowStart,
           sla_window_end: windowEnd,
           status: 'booked'
-        }).select().single();
+        };
+        
+        console.log('Attempting to create booking (Stripe mode):', bookingData);
+        
+        const { data, error } = await sb.from("bookings").insert(bookingData).select().single();
+        
+        if (error) {
+          console.error('Supabase booking insert error (Stripe mode):', error);
+          console.error('Error details:', { code: error.code, message: error.message, details: error.details });
+        }
         
         if (data) {
           bookingId = data.id;
+          console.log('Booking created successfully with ID (Stripe mode):', bookingId);
         }
       } catch (error) {
-        console.error('Failed to create booking:', error);
+        console.error('Failed to create booking (Stripe mode catch):', error);
         // Continue anyway - payment is more important
       }
     }
