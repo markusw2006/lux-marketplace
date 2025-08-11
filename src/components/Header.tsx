@@ -8,8 +8,11 @@ import LocaleSelector from './LocaleSelector';
 
 export default function Header() {
   const { t } = useLocale();
-  const { user, signOut } = useAuth();
+  const { user, userProfile, signOut } = useAuth();
   const router = useRouter();
+  
+  const isAdmin = userProfile?.role === 'admin';
+  const isPro = userProfile?.role === 'pro';
 
   const handleSignOut = async () => {
     await signOut();
@@ -34,9 +37,40 @@ export default function Header() {
             {user ? (
               // Authenticated user navigation
               <>
-                <Link href="/customer/bookings" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">
-                  {t('nav.bookings')}
-                </Link>
+                {/* Admin Navigation */}
+                {isAdmin && (
+                  <div className="flex items-center space-x-1 mr-4 px-3 py-2 bg-red-50 rounded-lg border border-red-200">
+                    <span className="text-xs font-medium text-red-600 uppercase tracking-wide">Admin</span>
+                    <div className="flex items-center space-x-1">
+                      <Link href="/admin/simple" className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                        Dashboard
+                      </Link>
+                      <span className="text-red-400">•</span>
+                      <Link href="/admin/simple-pro-apps" className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                        Pro Apps
+                      </Link>
+                      <span className="text-red-400">•</span>
+                      <Link href="/admin/whatsapp-test" className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                        WhatsApp
+                      </Link>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Pro Navigation */}
+                {isPro && !isAdmin && (
+                  <Link href="/pro/dashboard" className="text-blue-600 hover:text-blue-800 px-3 py-2 text-sm font-medium transition-colors">
+                    Pro Dashboard
+                  </Link>
+                )}
+                
+                {/* Regular User Navigation */}
+                {!isAdmin && !isPro && (
+                  <Link href="/customer/bookings" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">
+                    {t('nav.bookings')}
+                  </Link>
+                )}
+                
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-600">{t('nav.welcome')}, {user.email}</span>
                   <button
