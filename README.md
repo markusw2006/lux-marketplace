@@ -1,4 +1,6 @@
-Lux — CDMX Instant-Book Services Marketplace (Web MVP)
+# Lux — CDMX Instant-Book Services Marketplace (Web MVP)
+
+🚀 **Live at: https://lux-marketplace.vercel.app**
 
 ## Getting Started
 
