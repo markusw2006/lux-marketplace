@@ -68,10 +68,14 @@ export default function CheckoutForm({
     
     // For saved address option, ensure we have an address
     if (user && addressOption === 'saved' && !customerInfo.address.trim()) {
-      console.log('Setting saved address from user metadata');
-      const savedAddress = user?.user_metadata?.address || 'Roma Norte 123, Col. Roma Norte, Cuauhtémoc, 06700 CDMX';
-      setCustomerInfo(prev => ({...prev, address: savedAddress}));
-      // Continue with the saved address
+      console.log('Setting default address - no saved address found');
+      const defaultAddress = 'Av. Insurgentes Sur 1457, Col. San José Insurgentes, Benito Juárez, 03900 CDMX';
+      // Update the state and continue with submission
+      const updatedCustomerInfo = {...customerInfo, address: defaultAddress};
+      setCustomerInfo(updatedCustomerInfo);
+      
+      // Since state updates are async, we need to continue the submission with the updated info
+      console.log('Continuing with default address:', defaultAddress);
     }
     
     console.log('Validation passed, checking Stripe...');
@@ -250,7 +254,7 @@ export default function CheckoutForm({
                 <div className="ml-3 flex-1">
                   <div className="text-sm font-medium text-gray-900">My saved address</div>
                   <div className="text-xs text-gray-500 mt-0.5">
-                    {user?.user_metadata?.address || 'Roma Norte 123, Col. Roma Norte, Cuauhtémoc, 06700 CDMX'}
+                    {user?.user_metadata?.address || 'Av. Insurgentes Sur 1457, Col. San José Insurgentes, Benito Juárez, 03900 CDMX'}
                   </div>
                 </div>
               </label>
