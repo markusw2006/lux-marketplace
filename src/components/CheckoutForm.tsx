@@ -89,8 +89,9 @@ export default function CheckoutForm({
       // Simulate payment processing
       setTimeout(() => {
         console.log('Demo payment complete, redirecting...');
-        // Redirect to success page
-        window.location.href = '/customer/bookings?success=true';
+        // Redirect to booking confirmation page
+        const confirmationUrl = `/booking-confirmed?service=${encodeURIComponent(serviceId)}&total=${totalAmount}&date=${new Date().toLocaleDateString()}`;
+        window.location.href = confirmationUrl;
       }, 2000);
       
       return;
@@ -105,7 +106,8 @@ export default function CheckoutForm({
       setError(null);
       setTimeout(() => {
         console.log('Simulated payment for logged-in user, redirecting...');
-        window.location.href = '/customer/bookings?success=true';
+        const confirmationUrl = `/booking-confirmed?service=${encodeURIComponent(serviceId)}&total=${totalAmount}&date=${new Date().toLocaleDateString()}`;
+        window.location.href = confirmationUrl;
       }, 2000);
       return;
     }

@@ -82,7 +82,7 @@ function BookingConfirmedContent() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4">
           <Link 
-            href="/customer/bookings?success=true" 
+            href="/customer/bookings" 
             className="flex-1 bg-gray-900 text-white py-3 px-6 rounded-lg font-medium text-center hover:bg-gray-800 transition-colors"
           >
 {t('booking.view-bookings')}
