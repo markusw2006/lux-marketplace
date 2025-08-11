@@ -114,6 +114,26 @@ create table if not exists bookings (
   status booking_status default 'booked'
 );
 
+-- Basic RLS enabling
+alter table users enable row level security;
+alter table profiles enable row level security;
+alter table bookings enable row level security;
+
+-- NOTE: These assume auth.uid() == users.id
+create policy if not exists "users self" on users
+  for select using (id = auth.uid());
+create policy if not exists "profiles self" on profiles
+  for select using (user_id = auth.uid());
+create policy if not exists "bookings owner select" on bookings
+  for select using (customer_id = auth.uid() or assigned_pro_id = auth.uid());
+create policy if not exists "bookings insert by customer" on bookings
+  for insert with check (customer_id = auth.uid());
+
+-- Indexes for common lookups
+create index if not exists idx_bookings_customer on bookings(customer_id);
+create index if not exists idx_bookings_service on bookings(service_id);
+create index if not exists idx_availability_pro on availability_blocks(pro_id, starts_at, ends_at);
+
 create table if not exists transactions (
   id bigserial primary key,
   booking_id bigint references bookings(id) on delete cascade,
@@ -142,6 +162,27 @@ create table if not exists availability_blocks (
   capacity int default 1,
   service_id bigint references services(id)
 );
+
+-- Sample seed data for CDMX services (trimmed for brevity)
+insert into categories (slug, name_en, name_es) values
+  ('cleaning','Cleaning','Limpieza'),
+  ('plumbing','Plumbing','Plomería'),
+  ('electrical','Electrical','Electricidad'),
+  ('handyman','Handyman','Manitas')
+  on conflict do nothing;
+
+-- Minimal services seed
+insert into services (category_id, title_en, title_es, description_en, description_es, fixed_base_price, fixed_duration_minutes, instant_book_enabled)
+select c.id, s.title_en, s.title_es, s.description_en, s.description_es, s.fixed_base_price, s.fixed_duration_minutes, true
+from (
+  values
+    ('cleaning','Basic Cleaning (2 hrs)','Limpieza básica (2 h)', 'Two-hour cleaning', 'Limpieza de dos horas', 9000, 120),
+    ('plumbing','Faucet Replacement','Cambio de grifo', 'Replace a faucet', 'Reemplazar un grifo', 12000, 60)
+) as s(category_slug, title_en, title_es, description_en, description_es, fixed_base_price, fixed_duration_minutes)
+join categories c on c.slug = s.category_slug
+on conflict do nothing;
+
+
 
 -- Messaging & Reviews
 create table if not exists conversations (

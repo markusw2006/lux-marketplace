@@ -17,7 +17,7 @@ export type Service = {
   title_es: string;
   description_en?: string;
   description_es?: string;
-  photos?: string[];
+  photos?: string[]; // URLs or paths to images
   fixed_base_price: number; // MXN cents
   fixed_duration_minutes: number;
   included_scope_en?: string;

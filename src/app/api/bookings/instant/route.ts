@@ -1,26 +1,208 @@
 import { NextRequest } from "next/server";
 import { getStripe } from "@/lib/stripe";
+import { computeServiceTotalCents } from "@/lib/pricing";
+import { calculatePlatformFeeCents } from "@/lib/fees";
+import { getSupabaseService } from "@/lib/db";
+import { whatsappService } from "@/lib/whatsapp";
 
 export async function POST(req: NextRequest) {
   const payload = await req.json();
 
-  // Compute price server-side later; placeholder 1000 MXN
-  const amount = 1000_00; // cents
-  const connectedAccountId = payload.connectedAccountId as string | undefined; // placeholder
+  const serviceId = payload.serviceId as string;
+  const addons = (payload.addons as Record<string, number>) || {};
+  const customerInfo = payload.customerInfo || {};
+  const windowStart = payload.windowStart as string | undefined;
+  const windowEnd = payload.windowEnd as string | undefined;
 
-  const stripe = getStripe();
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount,
-    currency: "mxn",
-    capture_method: "manual",
-    application_fee_amount: Math.floor(amount * 0.15),
-    transfer_data: connectedAccountId
-      ? { destination: connectedAccountId }
-      : undefined,
-    metadata: { booking_seed: "true" },
+  // Calculate pricing
+  const amount = computeServiceTotalCents(serviceId, addons);
+  const platformFee = calculatePlatformFeeCents(amount);
+  
+  // For now, we don't have connected accounts set up, so no transfer
+  const connectedAccountId = payload.connectedAccountId as string | undefined;
+
+  // Check if Stripe is properly configured
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeSecretKey || stripeSecretKey === 'your-stripe-secret-key') {
+    // Return mock response for testing when Stripe isn't configured
+    console.log('Mock payment mode: Stripe not configured, returning mock client_secret');
+    
+    // Still create booking record for testing
+    const sb = getSupabaseService();
+    let bookingId = null;
+    if (sb) {
+      try {
+        const { data, error } = await sb.from("bookings").insert({
+          service_id: parseInt(serviceId, 10) || null,
+          customer_id: null,
+          fixed_price_total: amount,
+          addons,
+          sla_window_start: windowStart,
+          sla_window_end: windowEnd,
+          status: 'booked'
+        }).select().single();
+        
+        if (data) {
+          bookingId = data.id;
+        }
+      } catch (error) {
+        console.error('Failed to create booking:', error);
+      }
+    }
+    
+    // Send WhatsApp notifications (mock mode)
+    if (customerInfo.phone && bookingId) {
+      try {
+        await sendBookingNotifications({
+          bookingId,
+          customerPhone: customerInfo.phone,
+          customerName: customerInfo.name || 'Cliente',
+          serviceName: payload.serviceName || 'Servicio',
+          amount,
+          windowStart,
+          windowEnd
+        });
+      } catch (error) {
+        console.error('Failed to send WhatsApp notifications:', error);
+      }
+    }
+    
+    return Response.json({ 
+      client_secret: 'mock_pi_test_client_secret',
+      mock_mode: true 
+    });
+  }
+
+  try {
+    const stripe = getStripe();
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: "mxn",
+      capture_method: "manual",
+      // Don't set application fee if no connected account
+      ...(connectedAccountId && { application_fee_amount: platformFee }),
+      ...(connectedAccountId && { 
+        transfer_data: { destination: connectedAccountId } 
+      }),
+      metadata: { 
+        booking_seed: "true",
+        service_id: serviceId,
+        customer_email: customerInfo.email || '',
+        customer_name: customerInfo.name || ''
+      },
+    });
+
+    // Create booking record (basic implementation for now)
+    const sb = getSupabaseService();
+    let bookingId = null;
+    if (sb) {
+      try {
+        const { data, error } = await sb.from("bookings").insert({
+          service_id: parseInt(serviceId, 10) || null, // Convert string ID to number
+          customer_id: null, // We don't have user auth yet
+          fixed_price_total: amount,
+          addons,
+          sla_window_start: windowStart,
+          sla_window_end: windowEnd,
+          status: 'booked'
+        }).select().single();
+        
+        if (data) {
+          bookingId = data.id;
+        }
+      } catch (error) {
+        console.error('Failed to create booking:', error);
+        // Continue anyway - payment is more important
+      }
+    }
+    
+    // Send WhatsApp notifications
+    if (customerInfo.phone && bookingId) {
+      try {
+        await sendBookingNotifications({
+          bookingId,
+          customerPhone: customerInfo.phone,
+          customerName: customerInfo.name || 'Cliente',
+          serviceName: payload.serviceName || 'Servicio',
+          amount,
+          windowStart,
+          windowEnd
+        });
+      } catch (error) {
+        console.error('Failed to send WhatsApp notifications:', error);
+        // Continue - don't fail booking due to notification issues
+      }
+    }
+
+    return Response.json({ client_secret: paymentIntent.client_secret });
+  } catch (error) {
+    console.error('Stripe error:', error);
+    return Response.json({ error: 'Payment processing failed' }, { status: 500 });
+  }
+}
+
+// Helper function to send booking notifications
+async function sendBookingNotifications(params: {
+  bookingId: string;
+  customerPhone: string;
+  customerName: string;
+  serviceName: string;
+  amount: number;
+  windowStart?: string;
+  windowEnd?: string;
+}) {
+  const { formatCurrency } = await import('@/contexts/LocaleContext');
+  
+  // Format the amount for display
+  const totalFormatted = `$${(params.amount / 100).toLocaleString('es-MX')} MXN`;
+  
+  // Format date/time
+  const formatDateTime = (dateTime?: string) => {
+    if (!dateTime) return 'Por confirmar';
+    const date = new Date(dateTime);
+    return date.toLocaleDateString('es-MX', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Mock professional assignment (in real system, this would come from DB)
+  const mockPro = {
+    name: 'Carlos Mendoza',
+    phone: '+52 55 1234 5678'
+  };
+
+  // Send booking confirmation to customer
+  await whatsappService.sendBookingConfirmation({
+    customerPhone: params.customerPhone,
+    customerName: params.customerName,
+    serviceName: params.serviceName,
+    proName: mockPro.name,
+    proPhone: mockPro.phone,
+    bookingId: params.bookingId,
+    date: formatDateTime(params.windowStart),
+    time: params.windowEnd ? `${formatDateTime(params.windowStart)} - ${formatDateTime(params.windowEnd)}` : formatDateTime(params.windowStart),
+    address: 'Dirección proporcionada',
+    total: totalFormatted
   });
 
-  return Response.json({ client_secret: paymentIntent.client_secret });
+  // Send job assignment to pro (mock)
+  await whatsappService.sendProJobAssignment({
+    proPhone: mockPro.phone,
+    proName: mockPro.name,
+    customerName: params.customerName,
+    customerPhone: params.customerPhone,
+    serviceName: params.serviceName,
+    date: formatDateTime(params.windowStart),
+    time: params.windowEnd ? `${formatDateTime(params.windowStart)} - ${formatDateTime(params.windowEnd)}` : formatDateTime(params.windowStart),
+    address: 'Dirección proporcionada',
+    total: totalFormatted,
+    bookingId: params.bookingId
+  });
 }
 
 export const runtime = "nodejs";

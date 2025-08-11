@@ -1,12 +1,11 @@
 import { NextRequest } from "next/server";
+import { listServices } from "@/server/servicesRepo";
 
-// Placeholder: In MVP we will fetch from Supabase RPC or tables.
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const categoryId = searchParams.get("category_id");
-  const alcaldia = searchParams.get("alcaldia");
-
-  return Response.json({ services: [], categoryId, alcaldia });
+  const categorySlug = searchParams.get("category_id");
+  const filtered = await listServices(categorySlug || undefined);
+  return Response.json({ services: filtered });
 }
 
 
