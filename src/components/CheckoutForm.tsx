@@ -45,11 +45,39 @@ export default function CheckoutForm({
   // Update customer info when user changes
   useEffect(() => {
     if (user) {
+      // Check localStorage for saved profile data first
+      const savedProfile = localStorage.getItem(`profile_${user.id}`);
+      let profileData = null;
+      
+      if (savedProfile) {
+        try {
+          profileData = JSON.parse(savedProfile);
+        } catch (e) {
+          console.warn('Error parsing saved profile:', e);
+        }
+      }
+      
+      // Combine user metadata with saved profile data
+      const fullName = profileData ? 
+        `${profileData.firstName} ${profileData.lastName}`.trim() : 
+        (user.user_metadata?.name || user.user_metadata?.full_name || '');
+      
+      const fullAddress = profileData ?
+        `${profileData.street}, ${profileData.colonia}, ${profileData.alcaldia}, ${profileData.city}, ${profileData.state}, ${profileData.postalCode}`.replace(/,\s*,/g, ',').replace(/^,|,$/g, '') :
+        (user.user_metadata?.address || '');
+      
       setCustomerInfo({
-        name: user.user_metadata?.name || user.user_metadata?.full_name || '',
+        name: fullName,
         email: user.email || '',
-        phone: user.user_metadata?.phone || '',
-        address: user.user_metadata?.address || ''
+        phone: profileData?.phone || user.user_metadata?.phone || '',
+        address: fullAddress || 'Address not provided'
+      });
+      
+      console.log('Updated customer info with profile data:', {
+        fullName,
+        phone: profileData?.phone || user.user_metadata?.phone || '',
+        address: fullAddress,
+        hasProfileData: !!profileData
       });
     }
   }, [user]);
@@ -99,6 +127,7 @@ export default function CheckoutForm({
             addons,
             windowStart,
             windowEnd,
+            userId: user?.id || null, // Include user ID
             customerInfo
           }),
         });
@@ -145,6 +174,7 @@ export default function CheckoutForm({
             addons,
             windowStart,
             windowEnd,
+            userId: user?.id || null, // Include user ID
             customerInfo: addressOption === 'saved' ? 
               {...customerInfo, address: customerInfo.address || 'Av. Insurgentes Sur 1457, Col. San José Insurgentes, Benito Juárez, 03900 CDMX'} : 
               customerInfo

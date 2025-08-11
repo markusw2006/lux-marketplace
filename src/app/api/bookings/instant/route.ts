@@ -41,16 +41,16 @@ export async function POST(req: NextRequest) {
       try {
         const bookingData = {
           service_id: serviceId,
-          customer_id: null,
+          customer_id: payload.userId || null, // Include user ID if provided
           fixed_price_total: amount,
           addons: addons,
           sla_window_start: windowStart,
           sla_window_end: windowEnd,
           status: 'booked',
-          customer_name: customerInfo.name,
-          customer_email: customerInfo.email,
-          customer_phone: customerInfo.phone,
-          customer_address: customerInfo.address
+          customer_name: customerInfo.name || 'Name not provided',
+          customer_email: customerInfo.email || 'Email not provided',
+          customer_phone: customerInfo.phone || 'Phone not provided',
+          customer_address: customerInfo.address || 'Address not provided'
         };
         
         console.log('Attempting to create booking:', bookingData);
@@ -120,16 +120,16 @@ export async function POST(req: NextRequest) {
       try {
         const bookingData = {
           service_id: serviceId,
-          customer_id: null,
+          customer_id: payload.userId || null, // Include user ID if provided
           fixed_price_total: amount,
           addons: addons,
           sla_window_start: windowStart,
           sla_window_end: windowEnd,
           status: 'booked',
-          customer_name: customerInfo.name,
-          customer_email: customerInfo.email,
-          customer_phone: customerInfo.phone,
-          customer_address: customerInfo.address
+          customer_name: customerInfo.name || 'Name not provided',
+          customer_email: customerInfo.email || 'Email not provided',
+          customer_phone: customerInfo.phone || 'Phone not provided',
+          customer_address: customerInfo.address || 'Address not provided'
         };
         
         console.log('Attempting to create booking (Stripe mode):', bookingData);
