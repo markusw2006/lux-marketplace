@@ -234,7 +234,14 @@ export default function BookingsPage() {
                               {booking.status}
                             </span>
                             <span className="ml-3 text-sm text-gray-500">
-                              Booked on {new Date(booking.created_at).toLocaleDateString()}
+                              Booked on {new Date(booking.created_at).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })} at {new Date(booking.created_at).toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
                             </span>
                           </div>
                         </div>
