@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { requireAdmin } from '@/lib/auth-utils';
 
 // GET /api/admin/pro-applications/[id] - Get specific application
 export async function GET(
@@ -7,6 +8,16 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   const params = await context.params;
+  
+  // Check admin permissions
+  const authResult = await requireAdmin(request);
+  if (authResult.error) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status }
+    );
+  }
+
   try {
     const applicationId = params.id;
 
@@ -72,6 +83,16 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   const params = await context.params;
+  
+  // Check admin permissions
+  const authResult = await requireAdmin(request);
+  if (authResult.error) {
+    return NextResponse.json(
+      { error: authResult.error },
+      { status: authResult.status }
+    );
+  }
+
   try {
     const applicationId = params.id;
     const updates = await request.json();

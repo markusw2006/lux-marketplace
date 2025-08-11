@@ -15,47 +15,9 @@ export async function GET(request: NextRequest) {
 
   try {
     if (!supabase) {
-      // Mock data when Supabase is not configured
-      const mockApplications = [
-        {
-          id: 1,
-          application_id: 'APP-ABC123',
-          first_name: 'Carlos',
-          last_name: 'Mendoza',
-          email: 'carlos.mendoza@example.com',
-          phone: '+52 55 1234 5678',
-          services: ['Plumbing', 'Handyman'],
-          experience: '5-10',
-          location: 'Mexico City',
-          has_license: true,
-          has_insurance: true,
-          has_vehicle: true,
-          status: 'pending',
-          admin_notes: null,
-          created_at: '2025-01-10T10:00:00Z',
-          updated_at: '2025-01-10T10:00:00Z'
-        },
-        {
-          id: 2,
-          application_id: 'APP-DEF456',
-          first_name: 'Ana',
-          last_name: 'López',
-          email: 'ana.lopez@example.com',
-          phone: '+52 55 9876 5432',
-          services: ['Cleaning'],
-          experience: '3-5',
-          location: 'Mexico City',
-          has_license: false,
-          has_insurance: true,
-          has_vehicle: false,
-          status: 'under_review',
-          admin_notes: 'Good references, checking background',
-          created_at: '2025-01-09T14:30:00Z',
-          updated_at: '2025-01-10T09:15:00Z'
-        }
-      ];
-      
-      return NextResponse.json({ applications: mockApplications });
+      // Return empty applications array when Supabase is not configured
+      // This shows the live system is working but no real data exists yet
+      return NextResponse.json({ applications: [] });
     }
 
     // Get applications from database

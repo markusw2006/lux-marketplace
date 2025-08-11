@@ -29,75 +29,58 @@ export default function SimpleProApplicationsPage() {
   const [selectedApplication, setSelectedApplication] = useState<ProApplication | null>(null);
 
   useEffect(() => {
-    // Load mock applications immediately
-    const mockApplications: ProApplication[] = [
-      {
-        id: 1,
-        application_id: 'APP-ABC123',
-        first_name: 'Carlos',
-        last_name: 'Mendoza',
-        email: 'carlos.mendoza@example.com',
-        phone: '+52 55 1234 5678',
-        services: ['Plumbing', 'Handyman'],
-        experience: '5-10',
-        location: 'Mexico City',
-        has_license: true,
-        has_insurance: true,
-        has_vehicle: true,
-        status: 'pending',
-        created_at: '2025-01-10T10:00:00Z',
-        updated_at: '2025-01-10T10:00:00Z'
-      },
-      {
-        id: 2,
-        application_id: 'APP-DEF456',
-        first_name: 'Ana',
-        last_name: 'López',
-        email: 'ana.lopez@example.com',
-        phone: '+52 55 9876 5432',
-        services: ['Cleaning'],
-        experience: '3-5',
-        location: 'Mexico City',
-        has_license: false,
-        has_insurance: true,
-        has_vehicle: false,
-        status: 'under_review',
-        admin_notes: 'Good references, checking background',
-        created_at: '2025-01-09T14:30:00Z',
-        updated_at: '2025-01-10T09:15:00Z'
-      },
-      {
-        id: 3,
-        application_id: 'APP-GHI789',
-        first_name: 'Miguel',
-        last_name: 'Rodríguez',
-        email: 'miguel.rodriguez@example.com',
-        phone: '+52 55 5555 1234',
-        services: ['Electrical', 'Plumbing'],
-        experience: 'more-than-10',
-        location: 'Mexico City',
-        has_license: true,
-        has_insurance: true,
-        has_vehicle: true,
-        status: 'approved',
-        admin_notes: 'Excellent qualifications, approved for immediate start',
-        created_at: '2025-01-08T16:20:00Z',
-        updated_at: '2025-01-09T11:45:00Z'
-      }
-    ];
-    
-    setApplications(mockApplications);
+    // Load real applications from API
+    fetchApplications();
   }, []);
 
-  const handleStatusUpdate = (applicationId: string, newStatus: ProApplication['status'], notes?: string) => {
-    setApplications(apps => apps.map(app => 
-      app.application_id === applicationId 
-        ? { ...app, status: newStatus, admin_notes: notes, updated_at: new Date().toISOString() }
-        : app
-    ));
-    
-    setSelectedApplication(null);
-    alert(`Application ${applicationId} status updated to: ${newStatus}`);
+  const fetchApplications = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/pro-applications');
+      if (response.ok) {
+        const data = await response.json();
+        setApplications(data.applications || []);
+      } else {
+        console.error('Failed to fetch applications');
+        // Fallback to empty array to show "no applications" state
+        setApplications([]);
+      }
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+      // Fallback to empty array to show "no applications" state
+      setApplications([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusUpdate = async (applicationId: string, newStatus: ProApplication['status'], notes?: string) => {
+    try {
+      const response = await fetch(`/api/admin/pro-applications/${applicationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: newStatus,
+          admin_notes: notes,
+        }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        setApplications(apps => apps.map(app => 
+          app.application_id === applicationId 
+            ? { ...app, status: newStatus, admin_notes: notes || app.admin_notes }
+            : app
+        ));
+        setSelectedApplication(null);
+      } else {
+        console.error('Failed to update application status');
+      }
+    } catch (error) {
+      console.error('Error updating application:', error);
+    }
   };
 
   const getStatusColor = (status: string) => {
