@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     if (sb) {
       try {
         const bookingData = {
-          service_id: parseInt(serviceId, 10) || null,
+          service_id: serviceId, // Keep as string
           customer_id: null,
           fixed_price_total: amount,
           addons,
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
     if (sb) {
       try {
         const bookingData = {
-          service_id: parseInt(serviceId, 10) || null, // Convert string ID to number
+          service_id: serviceId, // Keep as string - don't convert to number
           customer_id: null, // We don't have user auth yet
           fixed_price_total: amount,
           addons,
