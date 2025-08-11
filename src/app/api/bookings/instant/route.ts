@@ -40,13 +40,15 @@ export async function POST(req: NextRequest) {
     if (sb) {
       try {
         const bookingData = {
-          service_id: serviceId, // Keep as string
-          customer_id: null,
-          fixed_price_total: amount,
-          addons,
-          sla_window_start: windowStart,
-          sla_window_end: windowEnd,
-          status: 'booked'
+          service_id: '550e8400-e29b-41d4-a716-446655440000', // Dummy UUID for now 
+          customer_id: '550e8400-e29b-41d4-a716-446655440001', // Dummy customer UUID
+          address: customerInfo.address || 'Address not provided',
+          total_price: Math.round(amount / 100), // Convert cents to integer pesos
+          addons_selected: addons,
+          customer_info: customerInfo,
+          window_start: windowStart ? new Date(windowStart).toISOString() : null,
+          window_end: windowEnd ? new Date(windowEnd).toISOString() : null,
+          status: 'pending'
         };
         
         console.log('Attempting to create booking:', bookingData);
@@ -115,13 +117,15 @@ export async function POST(req: NextRequest) {
     if (sb) {
       try {
         const bookingData = {
-          service_id: serviceId, // Keep as string - don't convert to number
-          customer_id: null, // We don't have user auth yet
-          fixed_price_total: amount,
-          addons,
-          sla_window_start: windowStart,
-          sla_window_end: windowEnd,
-          status: 'booked'
+          service_id: '550e8400-e29b-41d4-a716-446655440000', // Dummy UUID for now
+          customer_id: '550e8400-e29b-41d4-a716-446655440001', // Dummy customer UUID  
+          address: customerInfo.address || 'Address not provided',
+          total_price: Math.round(amount / 100), // Convert cents to integer pesos
+          addons_selected: addons,
+          customer_info: customerInfo,
+          window_start: windowStart ? new Date(windowStart).toISOString() : null,
+          window_end: windowEnd ? new Date(windowEnd).toISOString() : null,
+          status: 'pending'
         };
         
         console.log('Attempting to create booking (Stripe mode):', bookingData);
