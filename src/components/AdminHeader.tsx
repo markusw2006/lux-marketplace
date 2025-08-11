@@ -12,7 +12,7 @@ export default function AdminHeader() {
         <div className="flex justify-between items-center py-3">
           <div className="flex items-center space-x-4">
             <Link href="/admin/dashboard" className="flex items-center space-x-2">
-              <img src="/lux_logo.svg" alt="Lux" className="h-8 w-auto" />
+              <img src="/lux_logo.svg" alt="Lux" className="h-12 w-auto" />
               <span className="text-lg font-semibold">Admin</span>
             </Link>
             <span className="text-blue-200">|</span>

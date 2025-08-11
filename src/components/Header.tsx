@@ -23,7 +23,7 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <img src="/lux_logo.svg" alt="Lux" className="h-12 w-auto" />
+              <img src="/lux_logo.svg" alt="Lux" className="h-16 w-auto" />
             </Link>
           </div>
 

@@ -55,7 +55,7 @@ export default function WhatsAppTestPage() {
           <div className="flex justify-between items-center py-3">
             <div className="flex items-center space-x-4">
               <Link href="/admin/simple" className="flex items-center space-x-2 text-lg font-semibold hover:text-blue-200">
-                <img src="/lux_logo.svg" alt="Lux" className="h-8 w-auto" />
+                <img src="/lux_logo.svg" alt="Lux" className="h-12 w-auto" />
                 <span>Admin</span>
               </Link>
               <span className="text-blue-200">|</span>

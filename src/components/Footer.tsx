@@ -12,7 +12,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="mb-4">
-              <img src="/lux_logo.svg" alt="Lux" className="h-12 w-auto" />
+              <img src="/lux_logo.svg" alt="Lux" className="h-16 w-auto" />
             </div>
             <p className="text-gray-600 text-sm leading-6 max-w-md">
               {t('footer.tagline')}
