@@ -15,7 +15,8 @@ interface PageProps {
 }
 
 function ServicePageContent({ params }: PageProps) {
-  const { id } = use(params);
+  const resolvedParams = use(params);
+  const { id } = resolvedParams;
   const { formatCurrency, locale, t } = useLocale();
   const searchParams = useSearchParams();
   
@@ -26,28 +27,34 @@ function ServicePageContent({ params }: PageProps) {
   }
 
   // Get selected professional from URL params
-  const selectedProId = searchParams.get('pro');
+  const selectedProId = searchParams?.get('pro') || null;
   const selectedPro = selectedProId ? professionals.find(p => p.id === selectedProId) : null;
 
   // Convert to display format with MXN cents to pesos
-  const service = {
-    id: serviceData.id,
-    title: locale === 'en' ? serviceData.title_en : serviceData.title_es,
-    description: (locale === 'en' ? serviceData.description_en : serviceData.description_es) || (locale === 'en' ? 'Professional service with upfront pricing' : 'Servicio profesional con precios transparentes'),
-    price: Math.round(serviceData.fixed_base_price / 100), // Convert cents to pesos
-    duration: `${Math.round(serviceData.fixed_duration_minutes / 60)} hours`,
-    rating: 4.8,
-    reviewCount: 127,
-    image: getCategoryIcon(serviceData.category_slug),
-    features: getServiceFeatures(serviceData.category_slug, t),
-    whatIncluded: t('service.included') as string[],
-    addons: serviceData.addons.map(addon => ({
-      id: addon.id,
-      name: locale === 'en' ? addon.name_en : addon.name_es,
-      price: Math.round(addon.price_delta / 100), // Convert cents to pesos
-      description: (locale === 'en' ? addon.description_en : addon.description_es) || ''
-    }))
-  };
+  let service;
+  try {
+    service = {
+      id: serviceData.id,
+      title: locale === 'en' ? serviceData.title_en : serviceData.title_es,
+      description: (locale === 'en' ? serviceData.description_en : serviceData.description_es) || (locale === 'en' ? 'Professional service with upfront pricing' : 'Servicio profesional con precios transparentes'),
+      price: Math.round(serviceData.fixed_base_price / 100), // Convert cents to pesos
+      duration: `${Math.round(serviceData.fixed_duration_minutes / 60)} hours`,
+      rating: 4.8,
+      reviewCount: 127,
+      image: getCategoryIcon(serviceData.category_slug),
+      features: getServiceFeatures(serviceData.category_slug, t),
+      whatIncluded: Array.isArray(t('service.included')) ? t('service.included') as string[] : ['Professional service delivery', 'Quality materials included', 'Satisfaction guaranteed'],
+      addons: serviceData.addons.map(addon => ({
+        id: addon.id,
+        name: locale === 'en' ? addon.name_en : addon.name_es,
+        price: Math.round(addon.price_delta / 100), // Convert cents to pesos
+        description: (locale === 'en' ? addon.description_en : addon.description_es) || ''
+      }))
+    };
+  } catch (error) {
+    console.error('Error creating service object:', error);
+    notFound();
+  }
 
   function getCategoryIcon(category: string): string {
     const icons: { [key: string]: string } = {
@@ -63,12 +70,21 @@ function ServicePageContent({ params }: PageProps) {
   }
 
   function getServiceFeatures(category: string, t: (key: string) => any): string[] {
-    const key = `service.features.${category}`;
-    const features = t(key);
-    if (Array.isArray(features)) {
-      return features;
+    try {
+      const key = `service.features.${category}`;
+      const features = t(key);
+      if (Array.isArray(features)) {
+        return features;
+      }
+      const defaultFeatures = t('service.features.default');
+      if (Array.isArray(defaultFeatures)) {
+        return defaultFeatures;
+      }
+      return ['Professional service', 'Fixed pricing', 'Reliable quality'];
+    } catch (error) {
+      console.warn('Error getting service features:', error);
+      return ['Professional service', 'Fixed pricing', 'Reliable quality'];
     }
-    return t('service.features.default') as string[];
   }
 
   return (
