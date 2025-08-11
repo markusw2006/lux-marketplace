@@ -4,8 +4,9 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { services } from '@/data/seed/services';
 import { useLocale } from '@/contexts/LocaleContext';
+import SearchParamsWrapper from '@/components/SearchParamsWrapper';
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const zip = searchParams.get('zip') || '06700';
@@ -177,5 +178,13 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <SearchParamsWrapper>
+      <SearchContent />
+    </SearchParamsWrapper>
   );
 }

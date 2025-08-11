@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useLocale } from '@/contexts/LocaleContext';
-import { Suspense } from 'react';
+import SearchParamsWrapper from '@/components/SearchParamsWrapper';
 
 function ConfirmationContent() {
   const { t } = useLocale();
@@ -100,8 +100,8 @@ function ConfirmationContent() {
 
 export default function ProApplicationConfirmation() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div>Loading...</div></div>}>
+    <SearchParamsWrapper>
       <ConfirmationContent />
-    </Suspense>
+    </SearchParamsWrapper>
   );
 }

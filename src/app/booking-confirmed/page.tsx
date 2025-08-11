@@ -2,8 +2,9 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocale } from '@/contexts/LocaleContext';
+import SearchParamsWrapper from '@/components/SearchParamsWrapper';
 
 function BookingConfirmedContent() {
   const searchParams = useSearchParams();
@@ -110,8 +111,8 @@ function BookingConfirmedContent() {
 
 export default function BookingConfirmedPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div>Loading...</div></div>}>
+    <SearchParamsWrapper>
       <BookingConfirmedContent />
-    </Suspense>
+    </SearchParamsWrapper>
   );
 }
