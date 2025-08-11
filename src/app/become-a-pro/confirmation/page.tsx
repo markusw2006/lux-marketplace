@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useLocale } from '@/contexts/LocaleContext';
+import { Suspense } from 'react';
 
-export default function ProApplicationConfirmation() {
+function ConfirmationContent() {
   const { t } = useLocale();
   const searchParams = useSearchParams();
   const applicantName = searchParams.get('name') || 'Professional';
@@ -94,5 +95,13 @@ export default function ProApplicationConfirmation() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProApplicationConfirmation() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div>Loading...</div></div>}>
+      <ConfirmationContent />
+    </Suspense>
   );
 }
