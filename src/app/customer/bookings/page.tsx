@@ -86,29 +86,8 @@ export default function BookingsPage() {
     );
   }
 
-  // Mock data for demonstration + real bookings from database
-  const [bookings, setBookings] = useState<Booking[]>([
-    {
-      id: '1',
-      service_title: 'Deep Cleaning Service',
-      status: 'completed',
-      scheduled_date: '2025-01-08T10:00:00Z',
-      total_amount: 850,
-      pro_name: 'María González',
-      pro_phone: '+52 55 1111-2222',
-      created_at: '2025-01-05T08:00:00Z'
-    },
-    {
-      id: '2',
-      service_title: 'Plumbing Repair', 
-      status: 'accepted',
-      scheduled_date: '2025-01-15T14:00:00Z',
-      total_amount: 650,
-      pro_name: 'Carlos Ruiz',
-      pro_phone: '+52 55 3333-4444',
-      created_at: '2025-01-10T15:30:00Z'
-    }
-  ]);
+  // Live bookings from database
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
   // Add newest booking at the top when success=true
   useEffect(() => {

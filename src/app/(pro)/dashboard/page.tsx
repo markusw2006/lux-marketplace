@@ -20,46 +20,26 @@ export default function ProDashboard() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Mock data for demonstration
+  // Load real bookings from API
   useEffect(() => {
-    const mockBookings: Booking[] = [
-      {
-        id: '1',
-        service_title: 'Deep Cleaning Service',
-        customer_name: 'María García',
-        customer_phone: '+52 55 1234-5678',
-        customer_address: 'Av. Reforma 123, Roma Norte, CDMX',
-        status: 'pending',
-        scheduled_date: '2025-01-15T10:00:00Z',
-        total_amount: 850,
-        created_at: '2025-01-10T08:00:00Z'
-      },
-      {
-        id: '2',
-        service_title: 'Plumbing Repair',
-        customer_name: 'Carlos Mendoza',
-        customer_phone: '+52 55 9876-5432',
-        customer_address: 'Calle Ámsterdam 45, Condesa, CDMX',
-        status: 'accepted',
-        scheduled_date: '2025-01-14T14:00:00Z',
-        total_amount: 650,
-        created_at: '2025-01-09T15:30:00Z'
-      },
-      {
-        id: '3',
-        service_title: 'Electrical Installation',
-        customer_name: 'Ana López',
-        customer_phone: '+52 55 5555-1234',
-        customer_address: 'Polanco, Miguel Hidalgo, CDMX',
-        status: 'completed',
-        scheduled_date: '2025-01-08T09:00:00Z',
-        total_amount: 1200,
-        created_at: '2025-01-05T11:00:00Z'
+    const fetchBookings = async () => {
+      try {
+        // TODO: Replace with real API call when bookings API is ready
+        // const response = await fetch('/api/pro/bookings');
+        // const data = await response.json();
+        // setBookings(data.bookings || []);
+        
+        // For now, show empty state since no real bookings exist yet
+        setBookings([]);
+      } catch (error) {
+        console.error('Error fetching bookings:', error);
+        setBookings([]);
+      } finally {
+        setLoading(false);
       }
-    ];
+    };
     
-    setBookings(mockBookings);
-    setLoading(false);
+    fetchBookings();
   }, []);
 
   const stats = {

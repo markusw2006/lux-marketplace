@@ -37,47 +37,49 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Mock data for demonstration
-    setStats({
-      totalBookings: 1247,
-      totalRevenue: 285640,
-      activePros: 89,
-      totalCustomers: 456,
-      pendingDisputes: 3,
-      averageRating: 4.6
-    });
-
-    setRecentBookings([
-      {
-        id: '1',
-        service_title: 'Deep Cleaning Service',
-        customer_name: 'María García',
-        pro_name: 'Ana López',
-        status: 'completed',
-        total_amount: 850,
-        created_at: '2025-01-10T10:00:00Z'
-      },
-      {
-        id: '2',
-        service_title: 'Plumbing Repair',
-        customer_name: 'Carlos Mendoza',
-        pro_name: 'Roberto Silva',
-        status: 'in_progress',
-        total_amount: 650,
-        created_at: '2025-01-10T14:30:00Z'
-      },
-      {
-        id: '3',
-        service_title: 'Electrical Installation',
-        customer_name: 'Sofia Herrera',
-        pro_name: 'Luis González',
-        status: 'pending',
-        total_amount: 1200,
-        created_at: '2025-01-10T16:15:00Z'
+    // Load real admin statistics from APIs
+    const fetchStats = async () => {
+      try {
+        // TODO: Replace with real API calls when admin APIs are ready
+        // const statsResponse = await fetch('/api/admin/stats');
+        // const statsData = await statsResponse.json();
+        // setStats(statsData);
+        
+        // For now, show zero values since no real data exists yet
+        setStats({
+          totalBookings: 0,
+          totalRevenue: 0,
+          activePros: 0,
+          totalCustomers: 0,
+          pendingDisputes: 0,
+          averageRating: 0
+        });
+      } catch (error) {
+        console.error('Error fetching admin stats:', error);
       }
-    ]);
+    };
+    
+    fetchStats();
 
-    setLoading(false);
+    // Load recent bookings
+    const fetchRecentBookings = async () => {
+      try {
+        // TODO: Replace with real API call when bookings API is ready
+        // const bookingsResponse = await fetch('/api/admin/recent-bookings');
+        // const bookingsData = await bookingsResponse.json();
+        // setRecentBookings(bookingsData.bookings || []);
+        
+        // For now, show empty state since no real bookings exist yet
+        setRecentBookings([]);
+      } catch (error) {
+        console.error('Error fetching recent bookings:', error);
+        setRecentBookings([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchRecentBookings();
   }, []);
 
   const getStatusColor = (status: string) => {
