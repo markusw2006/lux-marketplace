@@ -40,15 +40,17 @@ export async function POST(req: NextRequest) {
     if (sb) {
       try {
         const bookingData = {
-          service_id: '550e8400-e29b-41d4-a716-446655440000', // Dummy UUID for now 
-          customer_id: '550e8400-e29b-41d4-a716-446655440001', // Dummy customer UUID
-          address: customerInfo.address || 'Address not provided',
-          total_price: Math.round(amount / 100), // Convert cents to integer pesos
-          addons_selected: addons,
-          customer_info: customerInfo,
-          window_start: windowStart ? new Date(windowStart).toISOString() : null,
-          window_end: windowEnd ? new Date(windowEnd).toISOString() : null,
-          status: 'pending'
+          service_id: serviceId,
+          customer_id: null,
+          fixed_price_total: amount,
+          addons: addons,
+          sla_window_start: windowStart,
+          sla_window_end: windowEnd,
+          status: 'booked',
+          customer_name: customerInfo.name,
+          customer_email: customerInfo.email,
+          customer_phone: customerInfo.phone,
+          customer_address: customerInfo.address
         };
         
         console.log('Attempting to create booking:', bookingData);
@@ -117,15 +119,17 @@ export async function POST(req: NextRequest) {
     if (sb) {
       try {
         const bookingData = {
-          service_id: '550e8400-e29b-41d4-a716-446655440000', // Dummy UUID for now
-          customer_id: '550e8400-e29b-41d4-a716-446655440001', // Dummy customer UUID  
-          address: customerInfo.address || 'Address not provided',
-          total_price: Math.round(amount / 100), // Convert cents to integer pesos
-          addons_selected: addons,
-          customer_info: customerInfo,
-          window_start: windowStart ? new Date(windowStart).toISOString() : null,
-          window_end: windowEnd ? new Date(windowEnd).toISOString() : null,
-          status: 'pending'
+          service_id: serviceId,
+          customer_id: null,
+          fixed_price_total: amount,
+          addons: addons,
+          sla_window_start: windowStart,
+          sla_window_end: windowEnd,
+          status: 'booked',
+          customer_name: customerInfo.name,
+          customer_email: customerInfo.email,
+          customer_phone: customerInfo.phone,
+          customer_address: customerInfo.address
         };
         
         console.log('Attempting to create booking (Stripe mode):', bookingData);
