@@ -80,8 +80,9 @@ export default function CheckoutForm({
     
     console.log('Validation passed, checking Stripe...');
     
-    // If Stripe isn't configured, still create the booking but simulate payment
-    if (!stripe || !elements) {
+    // Force demo mode for testing - create booking but simulate payment
+    const forceDemo = true; // Set to false for real Stripe payments
+    if (!stripe || !elements || forceDemo) {
       console.log('Using demo mode - no Stripe, but creating booking');
       setLoading(true);
       setError(null);
