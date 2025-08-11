@@ -32,7 +32,10 @@ export async function GET(_req: NextRequest) {
         pro_phone: null,
         created_at: booking.created_at || new Date().toISOString(),
         addons: booking.addons,
-        assignment_status: booking.assignment_status || 'pending'
+        assignment_status: booking.assignment_status || 'pending',
+        // Add time window information
+        sla_window_start: booking.sla_window_start,
+        sla_window_end: booking.sla_window_end
       };
     });
     

@@ -15,6 +15,8 @@ interface Booking {
   pro_name: string | null;
   pro_phone: string | null;
   created_at: string;
+  sla_window_start?: string;
+  sla_window_end?: string;
 }
 
 export default function BookingsPage() {
@@ -247,6 +249,11 @@ export default function BookingsPage() {
                           <div className="text-sm font-medium text-gray-900">
                             📅 {formatDate(booking.scheduled_date)}
                           </div>
+                          {booking.sla_window_start && booking.sla_window_end && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              🕐 Service Window: {new Date(booking.sla_window_start).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})} - {new Date(booking.sla_window_end).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}
+                            </div>
+                          )}
                         </div>
                         
                         {booking.pro_name ? (
