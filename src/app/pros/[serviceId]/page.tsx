@@ -9,6 +9,7 @@ import { useLocale } from '@/contexts/LocaleContext';
 import FilterSidebar from '@/components/FilterSidebar';
 import ProCard from '@/components/ProCard';
 import SearchParamsWrapper from '@/components/SearchParamsWrapper';
+import SearchPopup from '@/components/SearchPopup';
 
 function ProsListingContent() {
   const params = useParams();
@@ -22,8 +23,9 @@ function ProsListingContent() {
   
   const [filters, setFilters] = useState<any>({});
   const [sortBy, setSortBy] = useState<'rating' | 'price' | 'distance' | 'response-time'>('rating');
+  const [showSearchPopup, setShowSearchPopup] = useState(false);
 
-  // Get initial filters from URL
+  // Get initial filters from URL and show popup immediately
   useEffect(() => {
     const urlFilters: any = {};
     
@@ -35,6 +37,7 @@ function ProsListingContent() {
     const cleaningType = searchParams.get('cleaning_type');
     const propertyType = searchParams.get('property_type');
     const urgency = searchParams.get('urgency');
+    const searchQuery = searchParams.get('q');
     
     if (date) urlFilters.date = date;
     if (bedrooms) urlFilters.bedrooms = parseInt(bedrooms);
@@ -44,7 +47,19 @@ function ProsListingContent() {
     if (urgency) urlFilters.urgency = urgency;
     
     setFilters(urlFilters);
-  }, [searchParams]);
+    
+    // Show search popup for clarification, except for direct service links
+    const noPopup = searchParams.get('no_popup');
+    const isDirect = searchParams.get('direct'); // Direct service link (e.g., from popular services)
+    
+    // Skip popup if:
+    // 1. Explicitly told to skip (no_popup=true)  
+    // 2. Coming from direct service link (direct=true)
+    // Show popup for search results and other cases where user needs to clarify service
+    if (noPopup !== 'true' && isDirect !== 'true') {
+      setShowSearchPopup(true);
+    }
+  }, [searchParams, service]);
 
   // Filter and sort professionals
   const filteredPros = useMemo(() => {
@@ -101,36 +116,6 @@ function ProsListingContent() {
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Breadcrumb */}
-          <nav className="flex mb-4" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-4">
-              <li>
-                <Link href="/" className="text-gray-500 hover:text-gray-700">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <svg className="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <Link href={`/category/${service.category_slug}`} className="ml-4 text-gray-500 hover:text-gray-700 capitalize">
-                    {service.category_slug.replace('-', ' ')}
-                  </Link>
-                </div>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <svg className="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="ml-4 text-sm font-medium text-gray-900">
-                    {locale === 'en' ? service.title_en : service.title_es}
-                  </span>
-                </div>
-              </li>
-            </ol>
-          </nav>
 
           {/* Page title */}
           <div className="mb-6">
@@ -149,7 +134,7 @@ function ProsListingContent() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="text-sm border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="text-sm border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
               >
                 <option value="rating">Top rated</option>
                 <option value="price">Lowest price</option>
@@ -181,7 +166,7 @@ function ProsListingContent() {
           {/* Professionals List */}
           <div className="lg:col-span-3">
             {filteredPros.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {filteredPros.map((pro) => (
                   <ProCard
                     key={pro.id}
@@ -204,7 +189,7 @@ function ProsListingContent() {
                 </p>
                 <button
                   onClick={() => setFilters({})}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   Clear all filters
                 </button>
@@ -222,6 +207,14 @@ function ProsListingContent() {
           </div>
         </div>
       </div>
+
+      {/* Search Popup */}
+      <SearchPopup
+        isOpen={showSearchPopup}
+        onClose={() => setShowSearchPopup(false)}
+        searchQuery={searchParams.get('q') || ''}
+        zipCode={searchParams.get('zip') || '06700'}
+      />
     </div>
   );
 }

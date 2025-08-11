@@ -72,7 +72,12 @@ export default function Header() {
                 )}
                 
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">{t('nav.welcome')}, {user.email}</span>
+                  <Link 
+                    href="/customer/settings"
+                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    {t('nav.welcome')}, {user?.user_metadata?.name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Customer'}
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"

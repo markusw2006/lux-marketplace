@@ -38,7 +38,7 @@ export const professionals: Professional[] = [
     businessName: 'Limpieza María',
     tagline: 'Especialista en limpieza residencial - 8+ años',
     bio: 'Servicio de limpieza profesional con más de 8 años de experiencia en CDMX. Uso productos eco-friendly y garantizo 100% satisfacción.',
-    profilePhotoUrl: '/art/features/1.png',
+    profilePhotoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face&q=80',
     experienceYears: 8,
     serviceAreas: ['cleaning'],
     serviceRadius: 15,
@@ -56,7 +56,7 @@ export const professionals: Professional[] = [
     verified: true,
     insuranceVerified: true,
     backgroundCheckVerified: true,
-    startingPrice: 9000, // $90 MXN
+    startingPrice: 45000, // $450 MXN
     specialties: ['Deep cleaning', 'Eco-friendly products', 'Same day service'],
     availability: {
       sameDay: true,
@@ -69,7 +69,7 @@ export const professionals: Professional[] = [
     businessName: 'Ana Limpieza Express',
     tagline: 'Limpieza rápida y eficiente - Disponible 7 días',
     bio: 'Servicio de limpieza express para personas ocupadas. Especializada en apartamentos y oficinas pequeñas.',
-    profilePhotoUrl: '/art/features/2.png',
+    profilePhotoUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face&q=80',
     experienceYears: 5,
     serviceAreas: ['cleaning'],
     serviceRadius: 20,
@@ -87,7 +87,7 @@ export const professionals: Professional[] = [
     verified: true,
     insuranceVerified: false,
     backgroundCheckVerified: true,
-    startingPrice: 8500,
+    startingPrice: 42000, // $420 MXN
     specialties: ['Quick cleaning', 'Apartment specialists', 'Weekend available'],
     availability: {
       sameDay: true,
@@ -100,7 +100,7 @@ export const professionals: Professional[] = [
     businessName: 'Clean Team Polanco',
     tagline: 'Equipo profesional - Garantía 48h',
     bio: 'Equipo de 3 personas especializadas en limpieza profunda y mantenimiento residencial. Servicio premium con garantía.',
-    profilePhotoUrl: '/art/features/3.png',
+    profilePhotoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face&q=80',
     experienceYears: 12,
     serviceAreas: ['cleaning'],
     serviceRadius: 10,
@@ -118,7 +118,7 @@ export const professionals: Professional[] = [
     verified: true,
     insuranceVerified: true,
     backgroundCheckVerified: true,
-    startingPrice: 12000,
+    startingPrice: 55000, // $550 MXN
     specialties: ['Team service', 'Deep cleaning', '48h guarantee'],
     availability: {
       sameDay: false,
@@ -133,7 +133,7 @@ export const professionals: Professional[] = [
     businessName: 'Plomería García',
     tagline: 'Plomero experto - 15+ años CDMX',
     bio: 'Plomero profesional con más de 15 años de experiencia. Especializado en reparaciones residenciales y emergencias 24/7.',
-    profilePhotoUrl: '/art/features/4.png',
+    profilePhotoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face&q=80',
     experienceYears: 15,
     licenseNumber: 'PL-CDMX-2024-001',
     serviceAreas: ['plumbing', 'handyman'],
@@ -152,7 +152,7 @@ export const professionals: Professional[] = [
     verified: true,
     insuranceVerified: true,
     backgroundCheckVerified: true,
-    startingPrice: 10000,
+    startingPrice: 70000, // $700 MXN
     specialties: ['Emergency repairs', 'Faucet replacement', '24/7 available'],
     availability: {
       sameDay: true,
@@ -184,7 +184,7 @@ export const professionals: Professional[] = [
     verified: true,
     insuranceVerified: true,
     backgroundCheckVerified: true,
-    startingPrice: 11500,
+    startingPrice: 75000, // $750 MXN
     specialties: ['Fast service', 'Installations', '6 month warranty'],
     availability: {
       sameDay: true,
@@ -218,7 +218,7 @@ export const professionals: Professional[] = [
     verified: true,
     insuranceVerified: true,
     backgroundCheckVerified: true,
-    startingPrice: 11000,
+    startingPrice: 72000, // $720 MXN
     specialties: ['CFE certified', 'Light fixtures', 'Safety first'],
     availability: {
       sameDay: false,
@@ -251,7 +251,7 @@ export const professionals: Professional[] = [
     verified: true,
     insuranceVerified: false,
     backgroundCheckVerified: true,
-    startingPrice: 9500,
+    startingPrice: 68000, // $680 MXN
     specialties: ['TV mounting', 'IKEA assembly', 'Multi-skilled'],
     availability: {
       sameDay: true,

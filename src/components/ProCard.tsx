@@ -49,11 +49,10 @@ export default function ProCard({ professional, serviceId, filters = {} }: ProCa
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">
-      {/* Horizontal row layout */}
       <div className="p-6">
-        <div className="flex items-center justify-between">
-          {/* Left section: Photo and basic info */}
-          <div className="flex items-center space-x-4 flex-1">
+        {/* Top section: Photo, Name, Price */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start space-x-4 flex-1">
             {/* Professional Photo */}
             <div className="flex-shrink-0">
               {professional.profilePhotoUrl ? (
@@ -71,10 +70,10 @@ export default function ProCard({ professional, serviceId, filters = {} }: ProCa
               )}
             </div>
 
-            {/* Business info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-2 mb-1">
-                <h3 className="text-lg font-semibold text-gray-900 truncate">
+            {/* Name and verification */}
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 mb-2">
+                <h3 className="text-xl font-semibold text-gray-900">
                   {professional.businessName}
                 </h3>
                 {professional.verified && (
@@ -87,8 +86,8 @@ export default function ProCard({ professional, serviceId, filters = {} }: ProCa
                 )}
               </div>
               
-              {/* Rating and reviews */}
-              <div className="flex items-center space-x-3 mb-2">
+              {/* Rating */}
+              <div className="flex items-center space-x-2">
                 <div className="flex items-center space-x-1">
                   {renderStars(professional.rating)}
                   <span className="text-sm font-medium text-gray-900 ml-1">
@@ -99,61 +98,69 @@ export default function ProCard({ professional, serviceId, filters = {} }: ProCa
                   ({professional.reviewCount} reviews)
                 </span>
               </div>
-
-              {/* Tagline and key info */}
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                <span>{professional.experienceYears} years exp</span>
-                <span>{professional.totalJobs} jobs</span>
-                <span>{mockDistance} km away</span>
-                {professional.availability.sameDay && (
-                  <span className="text-green-600">• Same day</span>
-                )}
-              </div>
             </div>
           </div>
 
-          {/* Center section: Specialties */}
-          <div className="flex-1 px-6">
+          {/* Price */}
+          <div className="text-right">
+            <div className="text-2xl font-bold text-gray-900">
+              {formatCurrency(Math.round(professional.startingPrice / 100))}
+            </div>
+            <div className="text-sm text-gray-500">starting price</div>
+          </div>
+        </div>
+
+        {/* Middle section: Experience and availability */}
+        <div className="mb-4 pb-4 border-b border-gray-100">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="font-medium text-gray-700">{professional.experienceYears} years experience</span>
+              <span className="text-gray-500"> • {professional.totalJobs} jobs completed</span>
+            </div>
+            <div className="text-right">
+              <span className="text-gray-600">{mockDistance} km away</span>
+              {professional.availability.sameDay && (
+                <span className="block text-green-600 font-medium">✓ Same day available</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom section: Specialties and actions */}
+        <div className="flex items-center justify-between">
+          {/* Specialties */}
+          <div className="flex-1 mr-4">
             <div className="flex flex-wrap gap-2">
               {professional.specialties.slice(0, 3).map((specialty, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                  className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
                 >
                   {specialty}
                 </span>
               ))}
               {professional.specialties.length > 3 && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
                   +{professional.specialties.length - 3} more
                 </span>
               )}
             </div>
           </div>
 
-          {/* Right section: Price and actions */}
-          <div className="flex items-center space-x-4 flex-shrink-0">
-            <div className="text-right">
-              <div className="text-2xl font-bold text-gray-900">
-                {formatCurrency(Math.round(professional.startingPrice / 100))}
-              </div>
-              <div className="text-sm text-gray-500">starting price</div>
-            </div>
-            
-            <div className="flex flex-col space-y-2">
-              <Link
-                href={buildBookingUrl()}
-                className="bg-gray-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors text-sm text-center"
-              >
-                Book Now
-              </Link>
-              <Link
-                href={`/professional/${professional.id}`}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium text-center"
-              >
-                View Profile
-              </Link>
-            </div>
+          {/* Actions */}
+          <div className="flex space-x-3">
+            <Link
+              href={`/professional/${professional.id}`}
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              View Profile
+            </Link>
+            <Link
+              href={buildBookingUrl()}
+              className="px-6 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors text-sm"
+            >
+              Book Now
+            </Link>
           </div>
         </div>
       </div>

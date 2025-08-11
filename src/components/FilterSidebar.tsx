@@ -138,7 +138,7 @@ export default function FilterSidebar({ serviceId, onFiltersChange, totalPros }:
                     onClick={() => updateFilter('bedrooms', filters.bedrooms === num ? undefined : num)}
                     className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
                       filters.bedrooms === num
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        ? 'border-gray-900 bg-gray-100 text-gray-900'
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
@@ -157,7 +157,7 @@ export default function FilterSidebar({ serviceId, onFiltersChange, totalPros }:
                     onClick={() => updateFilter('bathrooms', filters.bathrooms === num ? undefined : num)}
                     className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
                       filters.bathrooms === num
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        ? 'border-gray-900 bg-gray-100 text-gray-900'
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
@@ -172,7 +172,7 @@ export default function FilterSidebar({ serviceId, onFiltersChange, totalPros }:
               <select
                 value={filters.cleaningType || ''}
                 onChange={(e) => updateFilter('cleaningType', e.target.value || undefined)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
               >
                 <option value="">Any type</option>
                 <option value="basic">Basic cleaning</option>
@@ -192,7 +192,7 @@ export default function FilterSidebar({ serviceId, onFiltersChange, totalPros }:
               <select
                 value={filters.propertyType || ''}
                 onChange={(e) => updateFilter('propertyType', e.target.value || undefined)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
               >
                 <option value="">Any property</option>
                 <option value="apartment">Apartment</option>
@@ -213,7 +213,7 @@ export default function FilterSidebar({ serviceId, onFiltersChange, totalPros }:
                     onClick={() => updateFilter('urgency', filters.urgency === option.value ? '' : option.value)}
                     className={`w-full px-3 py-2 text-left text-sm rounded-lg border transition-colors ${
                       filters.urgency === option.value
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        ? 'border-gray-900 bg-gray-100 text-gray-900'
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
@@ -250,9 +250,9 @@ export default function FilterSidebar({ serviceId, onFiltersChange, totalPros }:
   return (
     <div className="w-full bg-white rounded-xl shadow-sm border border-gray-200 sticky top-4">
       {/* Price Estimate */}
-      <div className="p-4 border-b border-gray-200 bg-blue-50 rounded-t-xl">
+      <div className="p-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
         <h3 className="text-sm font-medium text-gray-900 mb-2">Estimated Price</h3>
-        <div className="text-2xl font-bold text-blue-600">
+        <div className="text-2xl font-bold text-gray-900">
           {formatCurrency(estimatedPrice.min)} - {formatCurrency(estimatedPrice.max)}
         </div>
         <p className="text-xs text-gray-600 mt-1">
@@ -260,7 +260,7 @@ export default function FilterSidebar({ serviceId, onFiltersChange, totalPros }:
         </p>
       </div>
 
-      <div className="p-4 space-y-6 max-h-96 overflow-y-auto">
+      <div className="p-4 space-y-6">
         {/* Date Filter */}
         <div className="space-y-3">
           <label className="block text-sm font-medium text-gray-700">Preferred Date</label>
@@ -302,7 +302,7 @@ export default function FilterSidebar({ serviceId, onFiltersChange, totalPros }:
                 onClick={() => updateFilter('availability', filters.availability === option.value ? '' : option.value)}
                 className={`w-full px-3 py-2 text-left text-sm rounded-lg border transition-colors ${
                   filters.availability === option.value
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    ? 'border-gray-900 bg-gray-100 text-gray-900'
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
@@ -362,7 +362,7 @@ export default function FilterSidebar({ serviceId, onFiltersChange, totalPros }:
             type="checkbox"
             checked={filters.verified}
             onChange={(e) => updateFilter('verified', e.target.checked)}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            className="h-4 w-4 text-gray-900 focus:ring-gray-500 border-gray-300 rounded"
           />
           <label htmlFor="verified" className="ml-2 text-sm text-gray-700">
             Verified professionals only

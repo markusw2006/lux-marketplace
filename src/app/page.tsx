@@ -30,8 +30,19 @@ export default function HomePage() {
     
     if (!searchQuery.trim()) return;
     
-    // Show popup instead of navigating to search page
-    setShowSearchPopup(true);
+    // Navigate directly to provider list - no popup on homepage
+    // Find the best matching service and go to its providers page
+    const bestMatch = services.find(service => 
+      service.title_en.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      service.category_slug.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    if (bestMatch) {
+      router.push(`/pros/${bestMatch.id}?zip=${zipCode}&q=${encodeURIComponent(searchQuery)}`);
+    } else {
+      // If no match, show popup on homepage as fallback
+      setShowSearchPopup(true);
+    }
   };
 
   const categories = [
@@ -220,10 +231,18 @@ export default function HomePage() {
                 'assembly': '2e8e750e-cfeb-49a5-99f2-15a153efbb0f.png'
               };
 
+              // Map categories to their most popular service for direct provider flow
+              const serviceMap = {
+                'cleaning': 'basic-cleaning',
+                'plumbing': 'faucet-replacement',
+                'electrical': 'light-fixture', 
+                'assembly': 'furniture-assembly'
+              };
+
               return (
                 <Link 
                   key={category.id}
-                  href={`/category/${category.id}`}
+                  href={`/pros/${serviceMap[category.id as keyof typeof serviceMap]}?zip=06700&q=${encodeURIComponent(category.name)}&direct=true`}
                   className="group block overflow-hidden border border-gray-200 hover:border-gray-300 transition-all duration-300 bg-white hover:shadow-lg rounded-xl"
                 >
                   <div className="aspect-[4/3] overflow-hidden">

@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { services } from '@/data/seed/services';
 import SearchPopup from '@/components/SearchPopup';
 
 export default function CategoryPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params.slug as string;
   const [showSearchPopup, setShowSearchPopup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,7 +34,17 @@ export default function CategoryPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    setShowSearchPopup(true);
+    
+    // Find the best matching service from this category
+    const bestMatch = categoryServices.find(service => 
+      service.title_en.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      service.description_en?.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || categoryServices[0]; // fallback to first service in category
+    
+    if (bestMatch) {
+      // Navigate to provider list with search query to trigger popup
+      router.push(`/pros/${bestMatch.id}?zip=${zipCode}&q=${encodeURIComponent(searchQuery)}&popup=true`);
+    }
   };
 
   if (categoryServices.length === 0) {

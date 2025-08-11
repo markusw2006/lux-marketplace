@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useLocale } from '@/contexts/LocaleContext';
+import { professionals } from '@/data/seed/pros';
 
 interface Addon {
   id: string;
@@ -31,6 +32,9 @@ export default function Configurator({ service, prefilledPro }: ConfiguratorProp
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedPro, setSelectedPro] = useState<string>(prefilledPro || '');
+  
+  // Get professional info
+  const professional = selectedPro ? professionals.find(p => p.id === selectedPro) : null;
   
   // Service-specific filter states
   const [bedrooms, setBedrooms] = useState<number | undefined>();
@@ -153,51 +157,52 @@ export default function Configurator({ service, prefilledPro }: ConfiguratorProp
 
       {/* Pre-filled Filters (if coming from pros page) */}
       {(bedrooms || bathrooms || cleaningType || propertyType || urgency || propertySize) && (
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
           <h3 className="font-medium text-gray-900 mb-3">Your Selections</h3>
           <div className="flex flex-wrap gap-2 mb-3">
             {bedrooms && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-800">
                 {bedrooms} bedroom{bedrooms > 1 ? 's' : ''}
               </span>
             )}
             {bathrooms && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-800">
                 {bathrooms} bathroom{bathrooms > 1 ? 's' : ''}
               </span>
             )}
             {cleaningType && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-800">
                 {cleaningType.replace('-', ' ')} cleaning
               </span>
             )}
             {propertyType && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-800">
                 {propertyType}
               </span>
             )}
             {urgency && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-800">
                 {urgency} service
               </span>
             )}
             {propertySize && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-800">
                 {propertySize} property
               </span>
             )}
           </div>
-          <p className="text-sm text-blue-600">These selections from your search are included in the service configuration.</p>
+          <p className="text-sm text-gray-600">These selections from your search are included in the service configuration.</p>
         </div>
       )}
 
       {/* Selected Professional (if coming from pros page) */}
-      {selectedPro && (
-        <div className="mb-6 p-4 bg-green-50 rounded-lg">
-          <h3 className="font-medium text-gray-900 mb-2">Selected Professional</h3>
+      {professional && (
+        <div className="mb-6 p-3 bg-green-50 rounded-lg border border-green-200">
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-sm text-green-700">You&apos;ll be booked with professional: {selectedPro}</span>
+            <span className="text-sm font-medium text-green-700">
+              Booking with {professional.businessName}
+            </span>
           </div>
         </div>
       )}
@@ -245,7 +250,7 @@ export default function Configurator({ service, prefilledPro }: ConfiguratorProp
           min={minDate}
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
         />
       </div>
 
@@ -261,7 +266,7 @@ export default function Configurator({ service, prefilledPro }: ConfiguratorProp
               onClick={() => setSelectedTime(time)}
               className={`p-3 text-left rounded-lg border transition-colors ${
                 selectedTime === time
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  ? 'border-gray-900 bg-gray-100 text-gray-900'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >

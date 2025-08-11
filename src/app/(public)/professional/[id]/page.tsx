@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { professionals } from '@/data/seed/pros';
 
 interface Professional {
   id: string;
@@ -84,29 +85,37 @@ export default function ProfessionalProfilePage() {
   const [selectedPortfolioItem, setSelectedPortfolioItem] = useState<PortfolioItem | null>(null);
 
   useEffect(() => {
-    // Mock data - in real app, fetch from API
-    const mockProfessional: Professional = {
-      id: params.id as string,
-      businessName: 'Plomería García',
-      tagline: 'Plomero experto - 15+ años de experiencia en CDMX',
-      bio: 'Soy un plomero profesional con más de 15 años de experiencia en la Ciudad de México. Me especializo en reparaciones residenciales, instalaciones sanitarias y mantenimiento preventivo. Cuento con todas las certificaciones necesarias y garantizo mi trabajo por 6 meses.',
-      profilePhotoUrl: '/art/dd5cc185-4a97-4d5e-9186-3a34b9866e4b.png',
-      experienceYears: 15,
-      licenseNumber: 'PL-CDMX-2024-001',
-      serviceAreas: ['plumbing', 'handyman'],
-      serviceRadius: 25,
+    // Find the professional by ID from our seed data
+    const foundProfessional = professionals.find(p => p.id === params.id as string);
+    
+    if (!foundProfessional) {
+      setLoading(false);
+      return;
+    }
+
+    // Convert professional data to match the local interface
+    const mappedProfessional: Professional = {
+      id: foundProfessional.id,
+      businessName: foundProfessional.businessName,
+      tagline: foundProfessional.tagline,
+      bio: foundProfessional.bio,
+      profilePhotoUrl: foundProfessional.profilePhotoUrl,
+      experienceYears: foundProfessional.experienceYears,
+      licenseNumber: foundProfessional.licenseNumber,
+      serviceAreas: foundProfessional.serviceAreas,
+      serviceRadius: foundProfessional.serviceRadius,
       baseLocation: {
-        address: 'Roma Norte, CDMX',
-        alcaldia: 'Cuauhtémoc'
+        address: foundProfessional.baseLocation.address,
+        alcaldia: foundProfessional.baseLocation.alcaldia
       },
-      rating: 4.9,
-      reviewCount: 147,
-      totalJobs: 312,
-      completionRate: 98.7,
-      responseTime: 15, // minutes
-      verified: true,
-      insuranceVerified: true,
-      backgroundCheckVerified: true
+      rating: foundProfessional.rating,
+      reviewCount: foundProfessional.reviewCount,
+      totalJobs: foundProfessional.totalJobs,
+      completionRate: foundProfessional.completionRate,
+      responseTime: foundProfessional.responseTime,
+      verified: foundProfessional.verified,
+      insuranceVerified: foundProfessional.insuranceVerified,
+      backgroundCheckVerified: foundProfessional.backgroundCheckVerified
     };
 
     const mockPortfolio: PortfolioItem[] = [
@@ -179,7 +188,7 @@ export default function ProfessionalProfilePage() {
       }
     ];
 
-    setProfessional(mockProfessional);
+    setProfessional(mappedProfessional);
     setPortfolio(mockPortfolio);
     setReviews(mockReviews);
     setCertifications(mockCertifications);
@@ -202,7 +211,7 @@ export default function ProfessionalProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
       </div>
     );
   }
@@ -213,7 +222,7 @@ export default function ProfessionalProfilePage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900">Profesional no encontrado</h2>
           <p className="mt-2 text-gray-600">El perfil que buscas no existe o no está disponible.</p>
-          <Link href="/" className="mt-4 inline-block text-blue-600 hover:underline">
+          <Link href="/" className="mt-4 inline-block text-gray-600 hover:text-gray-900 hover:underline">
             Volver al inicio
           </Link>
         </div>
@@ -223,51 +232,33 @@ export default function ProfessionalProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <nav className="flex mb-4" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-4">
-              <li>
-                <Link href="/" className="text-gray-500 hover:text-gray-700">
-                  Inicio
-                </Link>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <svg className="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="ml-4 text-sm font-medium text-gray-900">Perfil Profesional</span>
-                </div>
-              </li>
-            </ol>
-          </nav>
-
-          {/* Professional Header */}
-          <div className="flex items-start space-x-6">
-            <div className="flex-shrink-0">
+      {/* Header - Hero Section with Large Profile */}
+      <div className="bg-gradient-to-br from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Large Profile Section */}
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-6">
               {professional.profilePhotoUrl ? (
                 <img
                   src={professional.profilePhotoUrl}
                   alt={professional.businessName}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                  className="w-40 h-40 rounded-full object-cover border-8 border-white shadow-xl ring-4 ring-gray-100"
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center border-4 border-white shadow-lg">
-                  <svg className="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-40 h-40 rounded-full bg-gray-300 flex items-center justify-center border-8 border-white shadow-xl ring-4 ring-gray-100">
+                  <svg className="w-20 h-20 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
               )}
             </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-3 mb-2">
-                <h1 className="text-2xl font-bold text-gray-900">{professional.businessName}</h1>
+            
+            <div className="max-w-3xl mx-auto">
+              <div className="flex items-center justify-center space-x-3 mb-4">
+                <h1 className="text-4xl font-bold text-gray-900">{professional.businessName}</h1>
                 {professional.verified && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Verificado
@@ -275,53 +266,68 @@ export default function ProfessionalProfilePage() {
                 )}
               </div>
               
-              <p className="text-gray-600 mb-3">{professional.tagline}</p>
+              <p className="text-xl text-gray-600 mb-6">{professional.tagline}</p>
               
-              <div className="flex items-center space-x-6 text-sm">
-                <div className="flex items-center space-x-1">
-                  {renderStars(professional.rating)}
-                  <span className="font-medium text-gray-900">{professional.rating}</span>
-                  <span className="text-gray-500">({professional.reviewCount} reseñas)</span>
+              {/* Key Stats Row */}
+              <div className="flex items-center justify-center space-x-8 mb-6">
+                <div className="text-center">
+                  <div className="flex items-center justify-center space-x-1 mb-1">
+                    {renderStars(professional.rating)}
+                  </div>
+                  <div className="text-lg font-semibold text-gray-900">{professional.rating}</div>
+                  <div className="text-sm text-gray-500">({professional.reviewCount} reseñas)</div>
                 </div>
                 
-                <div className="text-gray-600">
-                  {professional.totalJobs} trabajos completados
+                <div className="w-px h-16 bg-gray-300"></div>
+                
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900">{professional.totalJobs}</div>
+                  <div className="text-sm text-gray-500">trabajos completados</div>
                 </div>
                 
-                <div className="text-gray-600">
-                  {professional.experienceYears} años de experiencia
+                <div className="w-px h-16 bg-gray-300"></div>
+                
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900">{professional.experienceYears}</div>
+                  <div className="text-sm text-gray-500">años de experiencia</div>
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center space-x-4">
-                <div className="flex items-center text-sm text-gray-600">
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* Location and Response Time */}
+              <div className="flex items-center justify-center space-x-6 text-gray-600 mb-8">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   {professional.baseLocation.alcaldia} • {professional.serviceRadius} km cobertura
                 </div>
                 
-                <div className="flex items-center text-sm text-gray-600">
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Responde en ~{professional.responseTime} min
                 </div>
               </div>
-            </div>
 
-            <div className="flex-shrink-0">
-              <Link
-                href={`/service/booking?professional=${professional.id}`}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-              >
-                Contactar Profesional
-              </Link>
+              {/* Call to Action */}
+              <div className="flex items-center justify-center space-x-4">
+                <Link
+                  href={`/service/booking?professional=${professional.id}`}
+                  className="bg-gray-900 text-white px-8 py-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors text-lg shadow-lg"
+                >
+                  Contactar Profesional
+                </Link>
+                <button className="bg-white text-gray-700 px-6 py-4 rounded-xl font-medium border border-gray-300 hover:bg-gray-50 transition-colors">
+                  Enviar Mensaje
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -341,7 +347,7 @@ export default function ProfessionalProfilePage() {
                     onClick={() => setActiveTab(tab.key as any)}
                     className={`py-2 px-1 border-b-2 font-medium text-sm ${
                       activeTab === tab.key
-                        ? 'border-blue-500 text-blue-600'
+                        ? 'border-gray-900 text-gray-900'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
@@ -365,7 +371,7 @@ export default function ProfessionalProfilePage() {
                     {professional.serviceAreas.map(area => (
                       <span
                         key={area}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800"
                       >
                         {SERVICE_CATEGORIES[area]}
                       </span>
@@ -472,9 +478,9 @@ export default function ProfessionalProfilePage() {
                     
                     {review.professionalResponse && (
                       <div className="mt-4 pt-4 border-t border-gray-200">
-                        <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="bg-gray-50 rounded-lg p-4">
                           <div className="flex items-center space-x-2 mb-2">
-                            <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
+                            <div className="w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center">
                               <span className="text-xs font-medium text-white">
                                 {professional.businessName.charAt(0)}
                               </span>
@@ -526,21 +532,33 @@ export default function ProfessionalProfilePage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Quick Stats */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Estadísticas</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Tasa de finalización</span>
-                  <span className="text-sm font-medium text-gray-900">{professional.completionRate}%</span>
+            {/* Quick Contact Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">¿Necesitas este servicio?</h3>
+              <p className="text-gray-600 mb-6">
+                Contacta a {professional.businessName.split(' ')[0]} para solicitar un presupuesto personalizado
+              </p>
+              
+              <div className="space-y-3 mb-6">
+                <Link
+                  href={`/service/booking?professional=${professional.id}`}
+                  className="w-full bg-gray-900 text-white px-4 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors inline-block text-center"
+                >
+                  Solicitar Servicio
+                </Link>
+                <button className="w-full bg-white text-gray-700 px-4 py-3 rounded-lg font-medium border border-gray-300 hover:bg-gray-50 transition-colors">
+                  Enviar Mensaje
+                </button>
+              </div>
+              
+              <div className="border-t pt-4 text-sm text-gray-500">
+                <div className="flex justify-between mb-2">
+                  <span>Respuesta típica:</span>
+                  <span className="font-medium text-gray-900">~{professional.responseTime} min</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Tiempo de respuesta</span>
-                  <span className="text-sm font-medium text-gray-900">~{professional.responseTime} min</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Trabajos completados</span>
-                  <span className="text-sm font-medium text-gray-900">{professional.totalJobs}</span>
+                  <span>Tasa de finalización:</span>
+                  <span className="font-medium text-gray-900">{professional.completionRate}%</span>
                 </div>
               </div>
             </div>
@@ -590,19 +608,6 @@ export default function ProfessionalProfilePage() {
               </div>
             </div>
 
-            {/* Contact CTA */}
-            <div className="bg-blue-50 rounded-lg p-6 text-center">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">¿Necesitas este servicio?</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Contacta a {professional.businessName.split(' ')[0]} para solicitar un presupuesto
-              </p>
-              <Link
-                href={`/service/booking?professional=${professional.id}`}
-                className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors inline-block"
-              >
-                Solicitar Servicio
-              </Link>
-            </div>
           </div>
         </div>
       </div>

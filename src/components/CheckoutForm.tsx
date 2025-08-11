@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useRouter } from 'next/navigation';
 import { useLocale } from '@/contexts/LocaleContext';
+import { User } from '@supabase/supabase-js';
 
 interface CheckoutFormProps {
   serviceId: string;
@@ -11,6 +12,8 @@ interface CheckoutFormProps {
   totalAmount: number;
   windowStart?: string;
   windowEnd?: string;
+  professionalId?: string;
+  user?: User | null;
 }
 
 export default function CheckoutForm({ 
@@ -18,7 +21,9 @@ export default function CheckoutForm({
   addons, 
   totalAmount,
   windowStart,
-  windowEnd 
+  windowEnd,
+  professionalId,
+  user
 }: CheckoutFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -33,8 +38,21 @@ export default function CheckoutForm({
     phone: '',
     address: ''
   });
+  const [addressOption, setAddressOption] = useState<'saved' | 'different'>('saved');
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  // Update customer info when user changes
+  useEffect(() => {
+    if (user) {
+      setCustomerInfo({
+        name: user.user_metadata?.name || user.user_metadata?.full_name || '',
+        email: user.email || '',
+        phone: user.user_metadata?.phone || '',
+        address: user.user_metadata?.address || ''
+      });
+    }
+  }, [user]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -150,65 +168,159 @@ export default function CheckoutForm({
         </div>
       )}
 
-      {/* Contact Information */}
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-2">
-          {t('checkout.name')}
-        </label>
-        <input
-          type="text"
-          value={customerInfo.name}
-          onChange={(e) => handleInputChange('name', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Enter your full name"
-          required
-        />
-      </div>
+      {user ? (
+        /* Logged in user - Show saved info and minimal form */
+        <>
+          {/* Saved User Information */}
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <h3 className="text-sm font-medium text-gray-900 mb-3">Booking Information</h3>
+            <div className="grid grid-cols-1 gap-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Name:</span>
+                <span className="text-gray-900">{customerInfo.name || 'Not provided'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Email:</span>
+                <span className="text-gray-900">{customerInfo.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Phone:</span>
+                <span className="text-gray-900">{customerInfo.phone || 'Not provided'}</span>
+              </div>
+            </div>
+            <button 
+              type="button" 
+              className="mt-3 text-xs text-gray-600 hover:text-gray-900 underline"
+              onClick={() => router.push('/customer/settings')}
+            >
+              Edit information
+            </button>
+          </div>
+
+          {/* Service Address - Compact design */}
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-3">
+              Service Location *
+            </label>
+            
+            <div className="space-y-2">
+              {/* Saved Address Option */}
+              <label className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input 
+                  type="radio" 
+                  name="address-option"
+                  value="saved"
+                  checked={addressOption === 'saved'}
+                  onChange={() => {
+                    setAddressOption('saved');
+                    setCustomerInfo(prev => ({...prev, address: user?.user_metadata?.address || ''}));
+                  }}
+                  className="h-4 w-4 text-gray-900 border-gray-300 focus:ring-gray-500"
+                />
+                <div className="ml-3 flex-1">
+                  <div className="text-sm font-medium text-gray-900">My saved address</div>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    {user?.user_metadata?.address || 'Roma Norte 123, Col. Roma Norte, Cuauhtémoc, 06700 CDMX'}
+                  </div>
+                </div>
+              </label>
+              
+              {/* Different Address Option */}
+              <label className="flex items-start p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input 
+                  type="radio" 
+                  name="address-option"
+                  value="different"
+                  checked={addressOption === 'different'}
+                  onChange={() => setAddressOption('different')}
+                  className="h-4 w-4 text-gray-900 border-gray-300 focus:ring-gray-500 mt-0.5"
+                />
+                <div className="ml-3 flex-1">
+                  <div className="text-sm font-medium text-gray-900 mb-2">Different location</div>
+                  <textarea
+                    placeholder="Enter the address where service should be performed"
+                    className={`w-full px-2 py-1.5 border rounded text-sm resize-none ${
+                      addressOption === 'different' 
+                        ? 'border-gray-300 bg-white focus:ring-2 focus:ring-gray-500 focus:border-gray-500' 
+                        : 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                    }`}
+                    rows={2}
+                    disabled={addressOption !== 'different'}
+                    onChange={(e) => {
+                      if (addressOption === 'different') {
+                        handleInputChange('address', e.target.value);
+                      }
+                    }}
+                  />
+                </div>
+              </label>
+            </div>
+          </div>
+        </>
+      ) : (
+        /* Guest user - Show full form */
+        <>
+          {/* Contact Information */}
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              Full Name
+            </label>
+            <input
+              type="text"
+              value={customerInfo.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+              placeholder="Enter your full name"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={customerInfo.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              value={customerInfo.phone}
+              onChange={(e) => handleInputChange('phone', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+              placeholder="Enter your phone number"
+              required
+            />
+          </div>
+          
+          {/* Address */}
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-2">
+              Service Address
+            </label>
+            <textarea
+              value={customerInfo.address}
+              onChange={(e) => handleInputChange('address', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+              rows={3}
+              placeholder="Enter your complete address"
+              required
+            />
+          </div>
+        </>
+      )}
       
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-2">
-          Email Address
-        </label>
-        <input
-          type="email"
-          value={customerInfo.email}
-          onChange={(e) => handleInputChange('email', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Enter your email"
-          required
-        />
-      </div>
-      
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-2">
-          Phone Number
-        </label>
-        <input
-          type="tel"
-          value={customerInfo.phone}
-          onChange={(e) => handleInputChange('phone', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Enter your phone number"
-          required
-        />
-      </div>
-      
-      {/* Address */}
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-2">
-          Service Address
-        </label>
-        <textarea
-          value={customerInfo.address}
-          onChange={(e) => handleInputChange('address', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          rows={3}
-          placeholder="Enter your complete address"
-          required
-        />
-      </div>
-      
-      {/* Digital Wallets */}
+      {/* Digital Wallets - Available for all users */}
       <div className="space-y-3">
         <label className="block text-sm font-medium text-gray-900">
           Quick Pay
@@ -245,30 +357,72 @@ export default function CheckoutForm({
           <div className="w-full border-t border-gray-300" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-gray-50 text-gray-500">Or pay with card</span>
+          <span className="px-2 bg-white text-gray-500">Or pay with card</span>
         </div>
       </div>
 
-      {/* Card Information */}
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-2">
-          Card Information
+      {/* Payment Methods */}
+      {user ? (
+        /* Logged in user - Show saved payment methods */
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium text-gray-900">Saved Payment Methods</h3>
+          
+          {/* Mock saved payment methods - in real app, fetch from Stripe */}
+          <div className="space-y-3">
+            <div className="border border-gray-300 rounded-lg p-4 cursor-pointer hover:bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <input type="radio" name="payment-method" defaultChecked className="h-4 w-4 text-gray-600" />
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-5 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">
+                      •••• 4242
+                    </div>
+                    <span className="text-sm text-gray-900">Visa ending in 4242</span>
+                  </div>
+                </div>
+                <span className="text-xs text-gray-500">Expires 12/27</span>
+              </div>
+            </div>
+            
+            <div className="border border-dashed border-gray-300 rounded-lg p-4 cursor-pointer hover:bg-gray-50 text-center">
+              <div className="text-sm text-gray-600">
+                <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add new payment method
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Guest user - Show card input section */
+        <div>
+          <h3 className="text-sm font-medium text-gray-900 mb-4">Card Information</h3>
+        </div>
+      )}
+
+      {/* Card Information - Only show for guests or when adding new payment method */}
+      {!user && (
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-2">
+            Card Information
         </label>
         <div className="p-3 border border-gray-300 rounded-lg">
           <CardElement options={cardElementOptions} />
         </div>
         
         {/* Test Card Info */}
-        <div className="mt-2 p-3 bg-blue-50 rounded text-xs text-blue-700">
+        <div className="mt-2 p-3 bg-gray-50 rounded text-xs text-gray-700">
           <div className="font-semibold mb-2">Demo Mode - Test Card Numbers:</div>
           <div className="space-y-1">
             <div><strong>Visa:</strong> 4242 4242 4242 4242</div>
             <div><strong>Mastercard:</strong> 5555 5555 5555 4444</div>
             <div><strong>Any future expiry (12/25)</strong> • <strong>Any CVC (123)</strong></div>
           </div>
-          <div className="mt-2 text-blue-600 font-medium">Payment will be simulated - no real charges</div>
+          <div className="mt-2 text-gray-600 font-medium">Payment will be simulated - no real charges</div>
         </div>
-      </div>
+        </div>
+      )}
       
       {/* Submit Button */}
       <button

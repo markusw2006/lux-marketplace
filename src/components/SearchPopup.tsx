@@ -36,8 +36,8 @@ export default function SearchPopup({ isOpen, onClose, searchQuery, zipCode }: S
 
   const handleServiceSelect = (serviceId: string) => {
     onClose();
-    // Navigate to pros page for this service
-    router.push(`/pros/${serviceId}?zip=${zipCode}`);
+    // Navigate to pros page for this service with no_popup parameter
+    router.push(`/pros/${serviceId}?zip=${zipCode}&no_popup=true`);
   };
 
   // Close on escape key
@@ -70,7 +70,7 @@ export default function SearchPopup({ isOpen, onClose, searchQuery, zipCode }: S
       />
       
       {/* Modal */}
-      <div className="flex items-start justify-center min-h-screen pt-16 px-4">
+      <div className="flex items-center justify-center min-h-screen px-4 py-8">
         <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-200">
@@ -101,7 +101,7 @@ export default function SearchPopup({ isOpen, onClose, searchQuery, zipCode }: S
                     key={service.id}
                     onClick={() => handleServiceSelect(service.id)}
                     className={`w-full text-left p-4 rounded-xl hover:bg-gray-50 transition-colors border-2 ${
-                      index === 0 ? 'border-blue-200 bg-blue-50' : 'border-transparent'
+                      index === 0 ? 'border-gray-300 bg-gray-100' : 'border-transparent'
                     }`}
                   >
                     <div className="flex items-start justify-between">
@@ -111,7 +111,7 @@ export default function SearchPopup({ isOpen, onClose, searchQuery, zipCode }: S
                             {locale === 'en' ? service.title_en : service.title_es}
                           </h4>
                           {index === 0 && (
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                            <span className="text-xs bg-gray-200 text-gray-900 px-2 py-1 rounded-full">
                               Best Match
                             </span>
                           )}
