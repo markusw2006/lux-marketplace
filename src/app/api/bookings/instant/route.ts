@@ -6,13 +6,20 @@ import { getSupabaseService } from "@/lib/db";
 import { whatsappService } from "@/lib/whatsapp";
 
 export async function POST(req: NextRequest) {
+  console.log('=== BOOKING API CALLED ===');
+  console.log('Request URL:', req.url);
+  console.log('Request method:', req.method);
+  
   const payload = await req.json();
+  console.log('Received payload:', JSON.stringify(payload, null, 2));
 
   const serviceId = payload.serviceId as string;
   const addons = (payload.addons as Record<string, number>) || {};
   const customerInfo = payload.customerInfo || {};
   const windowStart = payload.windowStart as string | undefined;
   const windowEnd = payload.windowEnd as string | undefined;
+  
+  console.log('Parsed data:', { serviceId, addons, customerInfo, windowStart, windowEnd });
 
   // Calculate pricing
   const amount = computeServiceTotalCents(serviceId, addons);
