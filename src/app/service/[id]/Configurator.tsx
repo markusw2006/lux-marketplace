@@ -46,15 +46,18 @@ export default function Configurator({ service, prefilledPro }: ConfiguratorProp
   
   // Load pre-filled values from URL parameters
   useEffect(() => {
-    const pro = searchParams.get('pro');
-    const date = searchParams.get('date');
-    const time = searchParams.get('time');
-    const bedroomsParam = searchParams.get('bedrooms');
-    const bathroomsParam = searchParams.get('bathrooms');
-    const cleaningTypeParam = searchParams.get('cleaning_type');
-    const propertyTypeParam = searchParams.get('property_type');
-    const urgencyParam = searchParams.get('urgency');
-    const propertySizeParam = searchParams.get('property_size');
+    if (!searchParams) return;
+    
+    try {
+      const pro = searchParams.get('pro');
+      const date = searchParams.get('date');
+      const time = searchParams.get('time');
+      const bedroomsParam = searchParams.get('bedrooms');
+      const bathroomsParam = searchParams.get('bathrooms');
+      const cleaningTypeParam = searchParams.get('cleaning_type');
+      const propertyTypeParam = searchParams.get('property_type');
+      const urgencyParam = searchParams.get('urgency');
+      const propertySizeParam = searchParams.get('property_size');
     
     if (pro) setSelectedPro(pro);
     if (date) setSelectedDate(date);
@@ -67,12 +70,15 @@ export default function Configurator({ service, prefilledPro }: ConfiguratorProp
       };
       setSelectedTime(timeMap[time] || time);
     }
-    if (bedroomsParam) setBedrooms(parseInt(bedroomsParam));
-    if (bathroomsParam) setBathrooms(parseInt(bathroomsParam));
-    if (cleaningTypeParam) setCleaningType(cleaningTypeParam);
-    if (propertyTypeParam) setPropertyType(propertyTypeParam);
-    if (urgencyParam) setUrgency(urgencyParam);
-    if (propertySizeParam) setPropertySize(propertySizeParam);
+      if (bedroomsParam) setBedrooms(parseInt(bedroomsParam));
+      if (bathroomsParam) setBathrooms(parseInt(bathroomsParam));
+      if (cleaningTypeParam) setCleaningType(cleaningTypeParam);
+      if (propertyTypeParam) setPropertyType(propertyTypeParam);
+      if (urgencyParam) setUrgency(urgencyParam);
+      if (propertySizeParam) setPropertySize(propertySizeParam);
+    } catch (error) {
+      console.error('Error loading URL parameters:', error);
+    }
   }, [searchParams]);
 
   // Calculate total price
