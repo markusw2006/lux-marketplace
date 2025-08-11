@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
     
-    if (!supabase) {
+    console.log('Received application data:', formData);
+    
+    if (!supabaseAdmin) {
       // Fallback for when Supabase is not configured
       console.log('Pro application (mock):', formData);
       return NextResponse.json({ 
@@ -17,9 +19,11 @@ export async function POST(request: NextRequest) {
 
     // Generate application ID
     const applicationId = 'APP-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    
+    console.log('Inserting with application ID:', applicationId);
 
-    // Insert into pro_applications table
-    const { data, error } = await supabase
+    // Insert into pro_applications table using admin client
+    const { data, error } = await supabaseAdmin
       .from('pro_applications')
       .insert([{
         application_id: applicationId,
@@ -41,11 +45,14 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Database error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       return NextResponse.json(
-        { success: false, error: 'Failed to save application' },
+        { success: false, error: `Database error: ${error.message}` },
         { status: 500 }
       );
     }
+
+    console.log('Successfully inserted application:', data);
 
     // TODO: Send confirmation email using your email service
     // For now, just log the email that would be sent
@@ -59,8 +66,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('API error:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }
