@@ -4,8 +4,9 @@ import { supabase } from '@/lib/supabase';
 // GET /api/admin/pro-applications/[id] - Get specific application
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     const applicationId = params.id;
 
@@ -68,8 +69,9 @@ export async function GET(
 // PATCH /api/admin/pro-applications/[id] - Update specific application
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     const applicationId = params.id;
     const updates = await request.json();
