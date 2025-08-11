@@ -56,14 +56,23 @@ export default function CheckoutForm({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    console.log('Form submitted!', { stripe: !!stripe, elements: !!elements, customerInfo, addressOption });
+    
+    // Validation for logged-in users
+    if (user && addressOption === 'different' && !customerInfo.address.trim()) {
+      setError('Please enter a service address or select "Use my saved address"');
+      return;
+    }
     
     // If Stripe isn't configured, simulate successful payment for testing
     if (!stripe || !elements) {
+      console.log('Using demo mode - no Stripe');
       setLoading(true);
       setError(null);
       
       // Simulate payment processing
       setTimeout(() => {
+        console.log('Demo payment complete, redirecting...');
         // Redirect to success page
         window.location.href = '/customer/bookings?success=true';
       }, 2000);
@@ -428,6 +437,7 @@ export default function CheckoutForm({
       <button
         type="submit"
         disabled={loading}
+        onClick={() => console.log('Button clicked!')}
         className={`w-full py-3 px-4 rounded-lg font-medium transition-colors text-lg ${
           loading
             ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
