@@ -18,14 +18,14 @@ interface Booking {
 }
 
 export default function BookingsPage() {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { formatCurrency } = useLocale();
   const [success, setSuccess] = useState(false);
 
 
   // Temporarily disable loading check for testing
-  // if (loading) {
+  // if (authLoading) {
   //   return (
   //     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
   //       <div className="text-lg">Loading...</div>
