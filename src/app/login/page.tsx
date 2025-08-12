@@ -20,6 +20,9 @@ export default function LoginPage() {
     setError('');
 
     try {
+      // Clear the logout flag when user intentionally logs in
+      localStorage.removeItem('manually_logged_out');
+      
       if (supabase) {
         // Use Supabase auth
         const { data, error } = await supabase.auth.signInWithPassword({

@@ -335,6 +335,7 @@ export default function CheckoutForm({
               {/* Saved Address Option */}
               <label className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                 <input 
+                  id="address-option-saved"
                   type="radio" 
                   name="address-option"
                   value="saved"
@@ -356,6 +357,7 @@ export default function CheckoutForm({
               {/* Different Address Option */}
               <label className="flex items-start p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                 <input 
+                  id="address-option-different"
                   type="radio" 
                   name="address-option"
                   value="different"
@@ -366,6 +368,8 @@ export default function CheckoutForm({
                 <div className="ml-3 flex-1">
                   <div className="text-sm font-medium text-gray-900 mb-2">Different location</div>
                   <textarea
+                    id="different-address"
+                    name="different-address"
                     placeholder="Enter the address where service should be performed"
                     className={`w-full px-2 py-1.5 border rounded text-sm resize-none ${
                       addressOption === 'different' 
@@ -374,6 +378,7 @@ export default function CheckoutForm({
                     }`}
                     rows={2}
                     disabled={addressOption !== 'different'}
+                    autoComplete="street-address"
                     onChange={(e) => {
                       if (addressOption === 'different') {
                         handleInputChange('address', e.target.value);
@@ -394,11 +399,14 @@ export default function CheckoutForm({
               Full Name
             </label>
             <input
+              id="customer-name"
+              name="customer-name"
               type="text"
               value={customerInfo.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
               placeholder="Enter your full name"
+              autoComplete="name"
               required
             />
           </div>
@@ -408,11 +416,14 @@ export default function CheckoutForm({
               Email Address
             </label>
             <input
+              id="customer-email"
+              name="customer-email"
               type="email"
               value={customerInfo.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
               placeholder="Enter your email"
+              autoComplete="email"
               required
             />
           </div>
@@ -422,11 +433,14 @@ export default function CheckoutForm({
               Phone Number
             </label>
             <input
+              id="customer-phone"
+              name="customer-phone"
               type="tel"
               value={customerInfo.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
               placeholder="Enter your phone number"
+              autoComplete="tel"
               required
             />
           </div>
@@ -437,11 +451,14 @@ export default function CheckoutForm({
               Service Address
             </label>
             <textarea
+              id="customer-address"
+              name="customer-address"
               value={customerInfo.address}
               onChange={(e) => handleInputChange('address', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
               rows={3}
               placeholder="Enter your complete address"
+              autoComplete="street-address"
               required
             />
           </div>

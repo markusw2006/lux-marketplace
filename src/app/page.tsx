@@ -130,11 +130,14 @@ export default function HomePage() {
                   <form onSubmit={handleSearch} className="flex items-center">
                     <div className="flex-1 flex items-center px-6 py-4">
                       <input
+                        id="service-search"
+                        name="service-search"
                         type="text"
                         placeholder={t('search.placeholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="flex-1 border-0 focus:outline-none text-lg placeholder-gray-400"
+                        autoComplete="off"
                       />
                     </div>
                     
@@ -144,11 +147,14 @@ export default function HomePage() {
                           <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                         </svg>
                         <input
+                          id="zip-code"
+                          name="zip-code"
                           type="text"
                           value={zipCode}
                           onChange={(e) => setZipCode(e.target.value)}
                           maxLength={5}
                           className="w-12 border-0 focus:outline-none text-center text-gray-700 font-medium text-sm"
+                          autoComplete="postal-code"
                         />
                       </div>
                     </div>
