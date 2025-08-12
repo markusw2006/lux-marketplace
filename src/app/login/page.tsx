@@ -42,9 +42,34 @@ export default function LoginPage() {
         return;
       }
 
-      // Redirect based on user role (will need to check user role from auth context)
-      // For now, redirect to customer dashboard - this will be enhanced when role info is available
-      router.push('/customer/bookings');
+      // Redirect based on user role
+      let userRole = 'customer'; // default fallback
+      
+      if (supabase) {
+        // For real Supabase auth, we'd get role from user metadata or database
+        // For now, default to customer
+        userRole = 'customer';
+      } else {
+        // Get role from mock auth
+        const currentUser = mockAuth.getCurrentUser();
+        if (currentUser && currentUser.role) {
+          userRole = currentUser.role;
+        }
+      }
+
+      // Redirect based on role
+      switch (userRole) {
+        case 'admin':
+          router.push('/admin/dashboard');
+          break;
+        case 'pro':
+          router.push('/pro/dashboard');
+          break;
+        case 'customer':
+        default:
+          router.push('/customer/bookings');
+          break;
+      }
     } catch (error: any) {
       setError(error.message || 'Failed to sign in');
     } finally {
@@ -62,7 +87,7 @@ export default function LoginPage() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider,
         options: {
-          redirectTo: `${window.location.origin}/customer/bookings`
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       });
 
