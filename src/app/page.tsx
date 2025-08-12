@@ -28,17 +28,18 @@ export default function HomePage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!searchQuery.trim()) return;
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) return;
     
     // Navigate directly to provider list - no popup on homepage
     // Find the best matching service and go to its providers page
     const bestMatch = services.find(service => 
-      service.title_en.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.category_slug.toLowerCase().includes(searchQuery.toLowerCase())
+      service.title_en.toLowerCase().includes(trimmedQuery.toLowerCase()) ||
+      service.category_slug.toLowerCase().includes(trimmedQuery.toLowerCase())
     );
     
     if (bestMatch) {
-      router.push(`/pros/${bestMatch.id}?zip=${zipCode}&q=${encodeURIComponent(searchQuery)}`);
+      router.push(`/pros/${bestMatch.id}?zip=${zipCode}&q=${encodeURIComponent(trimmedQuery)}`);
     } else {
       // If no match, show popup on homepage as fallback
       setShowSearchPopup(true);
@@ -136,6 +137,7 @@ export default function HomePage() {
                         placeholder={t('search.placeholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        onBlur={(e) => setSearchQuery(e.target.value.trim())}
                         className="flex-1 border-0 focus:outline-none text-lg placeholder-gray-400"
                         autoComplete="off"
                       />
