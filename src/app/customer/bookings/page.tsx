@@ -263,51 +263,39 @@ export default function BookingsPage() {
                           )}
                         </div>
                         
-                        {booking.pro_name ? (
-                          <div>
-                            <div className="text-sm text-gray-500 mb-1">Professional</div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {booking.pro_name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              📞 {booking.pro_phone}
-                            </div>
+                        <div>
+                          <div className="text-sm text-gray-500 mb-1">Booking Status</div>
+                          <div className="text-sm font-medium text-gray-900 capitalize">
+                            {booking.status === 'booked' ? 'Confirmed' : booking.status}
                           </div>
-                        ) : (
-                          <div>
-                            <div className="text-sm text-gray-500 mb-1">Professional</div>
-                            <div className="text-sm text-gray-400">
-                              Being assigned...
-                            </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Service will be provided as scheduled
                           </div>
-                        )}
+                        </div>
                       </div>
 
                       <div className="mt-4 flex flex-wrap gap-2">
-                        {booking.status === 'pending' && (
+                        {(booking.status === 'booked' || booking.status === 'pending') && (
                           <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                            Cancel Booking
+                            Modify Booking
                           </button>
                         )}
                         {booking.status === 'completed' && (
+                          <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                            Book Again
+                          </button>
+                        )}
+                        {(booking.status === 'booked' || booking.status === 'pending') && (
                           <>
-                            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                              Leave Review
-                            </button>
                             <span className="text-gray-300">•</span>
-                            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                              Book Again
+                            <button className="text-sm text-red-600 hover:text-red-700 font-medium">
+                              Cancel Booking
                             </button>
                           </>
                         )}
-                        {booking.status === 'accepted' && (
-                          <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                            Contact Pro
-                          </button>
-                        )}
                         <span className="text-gray-300">•</span>
                         <button className="text-sm text-gray-500 hover:text-gray-700 font-medium">
-                          View Details
+                          Contact Support
                         </button>
                       </div>
                     </div>

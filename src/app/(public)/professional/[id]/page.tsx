@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { professionals } from '@/data/seed/pros';
+import { useLocale } from '@/contexts/LocaleContext';
 
 interface Professional {
   id: string;
@@ -29,17 +30,6 @@ interface Professional {
   backgroundCheckVerified: boolean;
 }
 
-interface PortfolioItem {
-  id: string;
-  title: string;
-  description: string;
-  categorySlug: string;
-  imageUrls: string[];
-  jobDate: string;
-  clientLocationArea: string;
-  projectDurationHours: number;
-  approximateCost: number;
-}
 
 interface Review {
   id: string;
@@ -63,26 +53,16 @@ interface Certification {
   verified: boolean;
 }
 
-const SERVICE_CATEGORIES: Record<string, string> = {
-  cleaning: 'Limpieza',
-  plumbing: 'Plomería',
-  electrical: 'Eléctrico',
-  handyman: 'Reparaciones Generales',
-  painting: 'Pintura',
-  gardening: 'Jardinería',
-  appliance: 'Electrodomésticos',
-  security: 'Seguridad'
-};
+// This will be replaced with dynamic translations
 
 export default function ProfessionalProfilePage() {
   const params = useParams();
+  const { t, locale } = useLocale();
   const [professional, setProfessional] = useState<Professional | null>(null);
-  const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'about' | 'portfolio' | 'reviews' | 'certifications'>('about');
-  const [selectedPortfolioItem, setSelectedPortfolioItem] = useState<PortfolioItem | null>(null);
+  const [activeTab, setActiveTab] = useState<'about' | 'reviews' | 'certifications'>('about');
 
   useEffect(() => {
     // Find the professional by ID from our seed data
@@ -118,30 +98,6 @@ export default function ProfessionalProfilePage() {
       backgroundCheckVerified: foundProfessional.backgroundCheckVerified
     };
 
-    const mockPortfolio: PortfolioItem[] = [
-      {
-        id: '1',
-        title: 'Renovación completa de baño',
-        description: 'Instalación completa de sistema sanitario, incluyendo regadera, lavabo y WC. Trabajo de alta calidad con acabados premium.',
-        categorySlug: 'plumbing',
-        imageUrls: ['/art/1110a8d6-e3d6-4b8a-a0f4-a914787e6914.png', '/art/1d265b78-c436-4b12-96e8-5de8ddacc8b4.png'],
-        jobDate: '2024-12-15',
-        clientLocationArea: 'Polanco',
-        projectDurationHours: 8,
-        approximateCost: 3500
-      },
-      {
-        id: '2',
-        title: 'Reparación de fuga en cocina',
-        description: 'Reparación urgente de fuga bajo el fregadero, reemplazo de tuberías deterioradas y instalación de nuevas válvulas.',
-        categorySlug: 'plumbing',
-        imageUrls: ['/art/2e8e750e-cfeb-49a5-99f2-15a153efbb0f.png'],
-        jobDate: '2024-12-10',
-        clientLocationArea: 'Roma Norte',
-        projectDurationHours: 3,
-        approximateCost: 1200
-      }
-    ];
 
     const mockReviews: Review[] = [
       {
@@ -189,7 +145,6 @@ export default function ProfessionalProfilePage() {
     ];
 
     setProfessional(mappedProfessional);
-    setPortfolio(mockPortfolio);
     setReviews(mockReviews);
     setCertifications(mockCertifications);
     setLoading(false);
@@ -220,10 +175,10 @@ export default function ProfessionalProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Profesional no encontrado</h2>
-          <p className="mt-2 text-gray-600">El perfil que buscas no existe o no está disponible.</p>
+          <h2 className="text-2xl font-bold text-gray-900">{t('profile.not-found')}</h2>
+          <p className="mt-2 text-gray-600">{t('profile.not-available')}</p>
           <Link href="/" className="mt-4 inline-block text-gray-600 hover:text-gray-900 hover:underline">
-            Volver al inicio
+            {t('profile.back-home')}
           </Link>
         </div>
       </div>
@@ -261,7 +216,7 @@ export default function ProfessionalProfilePage() {
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Verificado
+                    {t('profile.verified')}
                   </span>
                 )}
               </div>
@@ -275,21 +230,21 @@ export default function ProfessionalProfilePage() {
                     {renderStars(professional.rating)}
                   </div>
                   <div className="text-lg font-semibold text-gray-900">{professional.rating}</div>
-                  <div className="text-sm text-gray-500">({professional.reviewCount} reseñas)</div>
+                  <div className="text-sm text-gray-500">({professional.reviewCount} {t('profile.reviews')})</div>
                 </div>
                 
                 <div className="w-px h-16 bg-gray-300"></div>
                 
                 <div className="text-center">
                   <div className="text-2xl font-bold text-gray-900">{professional.totalJobs}</div>
-                  <div className="text-sm text-gray-500">trabajos completados</div>
+                  <div className="text-sm text-gray-500">{t('profile.jobs-completed')}</div>
                 </div>
                 
                 <div className="w-px h-16 bg-gray-300"></div>
                 
                 <div className="text-center">
                   <div className="text-2xl font-bold text-gray-900">{professional.experienceYears}</div>
-                  <div className="text-sm text-gray-500">años de experiencia</div>
+                  <div className="text-sm text-gray-500">{t('profile.years-experience')}</div>
                 </div>
               </div>
 
@@ -300,14 +255,14 @@ export default function ProfessionalProfilePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  {professional.baseLocation.alcaldia} • {professional.serviceRadius} km cobertura
+                  {professional.baseLocation.alcaldia} • {professional.serviceRadius} {t('profile.coverage')}
                 </div>
                 
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Responde en ~{professional.responseTime} min
+                  {t('profile.responds-in', { time: professional.responseTime })}
                 </div>
               </div>
 
@@ -317,10 +272,10 @@ export default function ProfessionalProfilePage() {
                   href={`/service/booking?professional=${professional.id}`}
                   className="bg-gray-900 text-white px-8 py-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors text-lg shadow-lg"
                 >
-                  Contactar Profesional
+                  {t('profile.contact-professional')}
                 </Link>
                 <button className="bg-white text-gray-700 px-6 py-4 rounded-xl font-medium border border-gray-300 hover:bg-gray-50 transition-colors">
-                  Enviar Mensaje
+                  {t('profile.send-message')}
                 </button>
               </div>
             </div>
@@ -337,10 +292,9 @@ export default function ProfessionalProfilePage() {
             <div className="border-b border-gray-200 mb-6">
               <nav className="flex space-x-8">
                 {[
-                  { key: 'about', label: 'Acerca de' },
-                  { key: 'portfolio', label: 'Portafolio' },
-                  { key: 'reviews', label: 'Reseñas' },
-                  { key: 'certifications', label: 'Certificaciones' }
+                  { key: 'about', label: t('profile.about') },
+                  { key: 'reviews', label: t('profile.reviews-tab') },
+                  { key: 'certifications', label: t('profile.certifications') }
                 ].map(tab => (
                   <button
                     key={tab.key}
@@ -361,19 +315,19 @@ export default function ProfessionalProfilePage() {
             {activeTab === 'about' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">Biografía</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">{t('profile.biography')}</h3>
                   <p className="text-gray-600 leading-relaxed">{professional.bio}</p>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">Servicios que Ofrece</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">{t('profile.services-offered')}</h3>
                   <div className="flex flex-wrap gap-2">
                     {professional.serviceAreas.map(area => (
                       <span
                         key={area}
                         className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800"
                       >
-                        {SERVICE_CATEGORIES[area]}
+                        {t(`categories.${area}`)}
                       </span>
                     ))}
                   </div>
@@ -381,14 +335,14 @@ export default function ProfessionalProfilePage() {
 
                 {professional.licenseNumber && (
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">Información Profesional</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">{t('profile.professional-info')}</h3>
                     <div className="bg-gray-50 rounded-lg p-4">
                       <div className="flex items-center space-x-2">
                         <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span className="text-sm text-gray-600">
-                          Licencia: {professional.licenseNumber}
+                          {t('profile.license')}: {professional.licenseNumber}
                         </span>
                       </div>
                     </div>
@@ -397,35 +351,6 @@ export default function ProfessionalProfilePage() {
               </div>
             )}
 
-            {activeTab === 'portfolio' && (
-              <div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {portfolio.map(item => (
-                    <div
-                      key={item.id}
-                      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                      onClick={() => setSelectedPortfolioItem(item)}
-                    >
-                      <div className="aspect-w-16 aspect-h-12">
-                        <img
-                          src={item.imageUrls[0]}
-                          alt={item.title}
-                          className="w-full h-48 object-cover"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <h4 className="font-medium text-gray-900 mb-1">{item.title}</h4>
-                        <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>{item.clientLocationArea}</span>
-                          <span>${item.approximateCost.toLocaleString()} MXN</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {activeTab === 'reviews' && (
               <div className="space-y-6">
@@ -440,7 +365,7 @@ export default function ProfessionalProfilePage() {
                           </div>
                         </div>
                         <p className="text-sm text-gray-500">
-                          {new Date(review.createdAt).toLocaleDateString('es-MX', {
+                          {new Date(review.createdAt).toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
@@ -457,19 +382,19 @@ export default function ProfessionalProfilePage() {
                     
                     <div className="grid grid-cols-3 gap-4 mb-4 text-sm">
                       <div className="text-center">
-                        <div className="font-medium text-gray-900">Calidad</div>
+                        <div className="font-medium text-gray-900">{t('profile.quality')}</div>
                         <div className="flex justify-center mt-1">
                           {renderStars(review.qualityRating)}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-medium text-gray-900">Puntualidad</div>
+                        <div className="font-medium text-gray-900">{t('profile.punctuality')}</div>
                         <div className="flex justify-center mt-1">
                           {renderStars(review.punctualityRating)}
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="font-medium text-gray-900">Comunicación</div>
+                        <div className="font-medium text-gray-900">{t('profile.communication')}</div>
                         <div className="flex justify-center mt-1">
                           {renderStars(review.communicationRating)}
                         </div>
@@ -486,7 +411,7 @@ export default function ProfessionalProfilePage() {
                               </span>
                             </div>
                             <span className="text-sm font-medium text-gray-900">
-                              Respuesta del profesional
+                              {t('profile.professional-response')}
                             </span>
                           </div>
                           <p className="text-sm text-gray-700">{review.professionalResponse}</p>
@@ -508,9 +433,9 @@ export default function ProfessionalProfilePage() {
                           <h4 className="font-medium text-gray-900 mb-1">{cert.name}</h4>
                           <p className="text-sm text-gray-600 mb-2">{cert.issuingOrganization}</p>
                           <div className="text-xs text-gray-500">
-                            <p>Emitido: {new Date(cert.issueDate).toLocaleDateString('es-MX')}</p>
+                            <p>{t('profile.issued')}: {new Date(cert.issueDate).toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US')}</p>
                             {cert.expiryDate && (
-                              <p>Expira: {new Date(cert.expiryDate).toLocaleDateString('es-MX')}</p>
+                              <p>{t('profile.expires')}: {new Date(cert.expiryDate).toLocaleDateString(locale === 'es' ? 'es-MX' : 'en-US')}</p>
                             )}
                           </div>
                         </div>
@@ -519,7 +444,7 @@ export default function ProfessionalProfilePage() {
                             <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            Verificado
+                            {t('profile.verified')}
                           </span>
                         )}
                       </div>
@@ -534,9 +459,9 @@ export default function ProfessionalProfilePage() {
           <div className="space-y-6">
             {/* Quick Contact Card */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">¿Necesitas este servicio?</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('profile.need-service')}</h3>
               <p className="text-gray-600 mb-6">
-                Contacta a {professional.businessName.split(' ')[0]} para solicitar un presupuesto personalizado
+                {t('profile.contact-for-quote', { name: professional.businessName.split(' ')[0] })}
               </p>
               
               <div className="space-y-3 mb-6">
@@ -544,20 +469,20 @@ export default function ProfessionalProfilePage() {
                   href={`/service/booking?professional=${professional.id}`}
                   className="w-full bg-gray-900 text-white px-4 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors inline-block text-center"
                 >
-                  Solicitar Servicio
+                  {t('profile.request-service')}
                 </Link>
                 <button className="w-full bg-white text-gray-700 px-4 py-3 rounded-lg font-medium border border-gray-300 hover:bg-gray-50 transition-colors">
-                  Enviar Mensaje
+                  {t('profile.send-message')}
                 </button>
               </div>
               
               <div className="border-t pt-4 text-sm text-gray-500">
                 <div className="flex justify-between mb-2">
-                  <span>Respuesta típica:</span>
+                  <span>{t('profile.typical-response')}</span>
                   <span className="font-medium text-gray-900">~{professional.responseTime} min</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Tasa de finalización:</span>
+                  <span>{t('profile.completion-rate')}</span>
                   <span className="font-medium text-gray-900">{professional.completionRate}%</span>
                 </div>
               </div>
@@ -565,7 +490,7 @@ export default function ProfessionalProfilePage() {
 
             {/* Verification Badges */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Verificaciones</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('profile.verifications')}</h3>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
@@ -577,7 +502,7 @@ export default function ProfessionalProfilePage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="text-sm text-gray-700">Perfil verificado</span>
+                  <span className="text-sm text-gray-700">{t('profile.verified-profile')}</span>
                 </div>
                 
                 <div className="flex items-center space-x-3">
@@ -590,7 +515,7 @@ export default function ProfessionalProfilePage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="text-sm text-gray-700">Antecedentes verificados</span>
+                  <span className="text-sm text-gray-700">{t('profile.background-verified')}</span>
                 </div>
                 
                 <div className="flex items-center space-x-3">
@@ -603,7 +528,7 @@ export default function ProfessionalProfilePage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="text-sm text-gray-700">Seguro verificado</span>
+                  <span className="text-sm text-gray-700">{t('profile.insurance-verified')}</span>
                 </div>
               </div>
             </div>
@@ -612,60 +537,6 @@ export default function ProfessionalProfilePage() {
         </div>
       </div>
 
-      {/* Portfolio Modal */}
-      {selectedPortfolioItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-full overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold text-gray-900">{selectedPortfolioItem.title}</h3>
-                <button
-                  onClick={() => setSelectedPortfolioItem(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                {selectedPortfolioItem.imageUrls.map((url, index) => (
-                  <img
-                    key={index}
-                    src={url}
-                    alt={`${selectedPortfolioItem.title} - imagen ${index + 1}`}
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                ))}
-              </div>
-              
-              <p className="text-gray-600 mb-4">{selectedPortfolioItem.description}</p>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-500">Área:</span>
-                  <div className="font-medium">{selectedPortfolioItem.clientLocationArea}</div>
-                </div>
-                <div>
-                  <span className="text-gray-500">Duración:</span>
-                  <div className="font-medium">{selectedPortfolioItem.projectDurationHours}h</div>
-                </div>
-                <div>
-                  <span className="text-gray-500">Costo aprox.:</span>
-                  <div className="font-medium">${selectedPortfolioItem.approximateCost.toLocaleString()} MXN</div>
-                </div>
-                <div>
-                  <span className="text-gray-500">Fecha:</span>
-                  <div className="font-medium">
-                    {new Date(selectedPortfolioItem.jobDate).toLocaleDateString('es-MX')}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

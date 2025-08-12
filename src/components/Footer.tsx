@@ -22,10 +22,10 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-gray-900 mb-4">{t('nav.services')}</h4>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><Link href="/category/cleaning" className="hover:text-gray-900 transition-colors">{t('categories.cleaning')}</Link></li>
-              <li><Link href="/category/plumbing" className="hover:text-gray-900 transition-colors">{t('categories.plumbing')}</Link></li>
-              <li><Link href="/category/electrical" className="hover:text-gray-900 transition-colors">{t('categories.electrical')}</Link></li>
-              <li><Link href="/category/assembly" className="hover:text-gray-900 transition-colors">{t('categories.handyman')}</Link></li>
+              <li><Link href="/service/basic-cleaning" className="hover:text-gray-900 transition-colors">{t('categories.cleaning')}</Link></li>
+              <li><Link href="/service/faucet-replacement" className="hover:text-gray-900 transition-colors">{t('categories.plumbing')}</Link></li>
+              <li><Link href="/service/light-fixture" className="hover:text-gray-900 transition-colors">{t('categories.electrical')}</Link></li>
+              <li><Link href="/service/furniture-assembly" className="hover:text-gray-900 transition-colors">{t('categories.handyman')}</Link></li>
             </ul>
           </div>
           

@@ -14,7 +14,7 @@ interface LocaleContextType {
   formatCurrency: (amount: number, fromCurrency?: Currency) => string;
   lockExchangeRate: () => void;
   unlockExchangeRate: () => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
@@ -172,7 +172,54 @@ const translations = {
       'Satisfaction guarantee',
       'Instant booking and confirmation',
       'Platform protection'
-    ]
+    ],
+    // Professional profile translations
+    'profile.verified': 'Verified',
+    'profile.reviews': 'reviews',
+    'profile.jobs-completed': 'jobs completed',
+    'profile.years-experience': 'years of experience',
+    'profile.coverage': 'km coverage',
+    'profile.responds-in': 'Responds in ~{time} min',
+    'profile.contact-professional': 'Contact Professional',
+    'profile.send-message': 'Send Message',
+    'profile.about': 'About',
+    'profile.portfolio': 'Portfolio',
+    'profile.reviews-tab': 'Reviews',
+    'profile.certifications': 'Certifications',
+    'profile.biography': 'Biography',
+    'profile.services-offered': 'Services Offered',
+    'profile.professional-info': 'Professional Information',
+    'profile.license': 'License',
+    'profile.quality': 'Quality',
+    'profile.punctuality': 'Punctuality',
+    'profile.communication': 'Communication',
+    'profile.professional-response': 'Professional response',
+    'profile.issued': 'Issued',
+    'profile.expires': 'Expires',
+    'profile.need-service': 'Need this service?',
+    'profile.contact-for-quote': 'Contact {name} for a personalized quote',
+    'profile.request-service': 'Request Service',
+    'profile.typical-response': 'Typical response:',
+    'profile.completion-rate': 'Completion rate:',
+    'profile.verifications': 'Verifications',
+    'profile.verified-profile': 'Verified profile',
+    'profile.background-verified': 'Background verified',
+    'profile.insurance-verified': 'Insurance verified',
+    'profile.not-found': 'Professional not found',
+    'profile.not-available': 'The profile you are looking for does not exist or is not available.',
+    'profile.back-home': 'Back to home',
+    'profile.area': 'Area',
+    'profile.duration': 'Duration',
+    'profile.approx-cost': 'Approx. cost',
+    'profile.date': 'Date',
+    'categories.cleaning': 'Cleaning',
+    'categories.plumbing': 'Plumbing',
+    'categories.electrical': 'Electrical',
+    'categories.handyman': 'Handyman',
+    'categories.painting': 'Painting',
+    'categories.gardening': 'Gardening',
+    'categories.appliance': 'Appliances',
+    'categories.security': 'Security'
   },
   es: {
     'nav.home': 'Inicio',
@@ -325,7 +372,54 @@ const translations = {
       'Garantía de satisfacción',
       'Reserva y confirmación instantánea',
       'Protección de la plataforma'
-    ]
+    ],
+    // Professional profile translations
+    'profile.verified': 'Verificado',
+    'profile.reviews': 'reseñas',
+    'profile.jobs-completed': 'trabajos completados',
+    'profile.years-experience': 'años de experiencia',
+    'profile.coverage': 'km cobertura',
+    'profile.responds-in': 'Responde en ~{time} min',
+    'profile.contact-professional': 'Contactar Profesional',
+    'profile.send-message': 'Enviar Mensaje',
+    'profile.about': 'Acerca de',
+    'profile.portfolio': 'Portafolio',
+    'profile.reviews-tab': 'Reseñas',
+    'profile.certifications': 'Certificaciones',
+    'profile.biography': 'Biografía',
+    'profile.services-offered': 'Servicios que Ofrece',
+    'profile.professional-info': 'Información Profesional',
+    'profile.license': 'Licencia',
+    'profile.quality': 'Calidad',
+    'profile.punctuality': 'Puntualidad',
+    'profile.communication': 'Comunicación',
+    'profile.professional-response': 'Respuesta del profesional',
+    'profile.issued': 'Emitido',
+    'profile.expires': 'Expira',
+    'profile.need-service': '¿Necesitas este servicio?',
+    'profile.contact-for-quote': 'Contacta a {name} para solicitar un presupuesto personalizado',
+    'profile.request-service': 'Solicitar Servicio',
+    'profile.typical-response': 'Respuesta típica:',
+    'profile.completion-rate': 'Tasa de finalización:',
+    'profile.verifications': 'Verificaciones',
+    'profile.verified-profile': 'Perfil verificado',
+    'profile.background-verified': 'Antecedentes verificados',
+    'profile.insurance-verified': 'Seguro verificado',
+    'profile.not-found': 'Profesional no encontrado',
+    'profile.not-available': 'El perfil que buscas no existe o no está disponible.',
+    'profile.back-home': 'Volver al inicio',
+    'profile.area': 'Área',
+    'profile.duration': 'Duración',
+    'profile.approx-cost': 'Costo aprox.',
+    'profile.date': 'Fecha',
+    'categories.cleaning': 'Limpieza',
+    'categories.plumbing': 'Plomería',
+    'categories.electrical': 'Eléctrico',
+    'categories.handyman': 'Reparaciones Generales',
+    'categories.painting': 'Pintura',
+    'categories.gardening': 'Jardinería',
+    'categories.appliance': 'Electrodomésticos',
+    'categories.security': 'Seguridad'
   }
 };
 
@@ -413,8 +507,17 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     console.log('Exchange rate unlocked');
   };
 
-  const t = (key: string): string => {
-    return translations[locale][key as keyof typeof translations['en']] || key;
+  const t = (key: string, params?: Record<string, string | number>): string => {
+    let translation = translations[locale][key as keyof typeof translations['en']] || key;
+    
+    // Handle interpolation if params are provided
+    if (params) {
+      Object.entries(params).forEach(([paramKey, value]) => {
+        translation = translation.replace(`{${paramKey}}`, String(value));
+      });
+    }
+    
+    return translation;
   };
 
   return (

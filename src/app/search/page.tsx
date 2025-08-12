@@ -163,13 +163,18 @@ function SearchContent() {
             <div className="space-y-2">
               <p className="text-sm text-gray-500">Popular services:</p>
               <div className="flex flex-wrap justify-center gap-2">
-                {['cleaning', 'plumbing', 'electrical', 'handyman'].map((category) => (
+                {[
+                  { name: 'cleaning', serviceId: 'basic-cleaning' },
+                  { name: 'plumbing', serviceId: 'faucet-replacement' },
+                  { name: 'electrical', serviceId: 'light-fixture' },
+                  { name: 'handyman', serviceId: 'furniture-assembly' }
+                ].map((category) => (
                   <Link
-                    key={category}
-                    href={`/category/${category}`}
+                    key={category.name}
+                    href={`/service/${category.serviceId}`}
                     className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-full text-sm text-gray-700 transition-colors"
                   >
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                    {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
                   </Link>
                 ))}
               </div>
