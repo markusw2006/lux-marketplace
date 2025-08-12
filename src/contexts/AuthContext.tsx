@@ -34,12 +34,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loggedOut, setLoggedOut] = useState(false);
 
   useEffect(() => {
-    // Check if user was manually logged out
+    // Check if user was manually logged out, but reset the flag on reload to allow fresh logins
     const wasLoggedOut = localStorage.getItem('manually_logged_out') === 'true';
     if (wasLoggedOut) {
-      setLoggedOut(true);
-      setLoading(false);
-      return;
+      // Only stay logged out if it's recent (within 5 minutes)
+      const logoutTime = localStorage.getItem('logout_timestamp');
+      const now = Date.now();
+      const fiveMinutes = 5 * 60 * 1000;
+      
+      if (logoutTime && (now - parseInt(logoutTime)) < fiveMinutes) {
+        setLoggedOut(true);
+        setLoading(false);
+        return;
+      } else {
+        // Clear old logout flag
+        localStorage.removeItem('manually_logged_out');
+        localStorage.removeItem('logout_timestamp');
+      }
     }
 
     // If Supabase is not configured, check for mock user
@@ -55,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!loggedOut && session?.user) {
+      if (session?.user && !loggedOut) {
         setUser(session.user);
         fetchUserProfile(session.user.id);
       } else {
@@ -69,13 +80,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT' || loggedOut) {
+      if (event === 'SIGNED_OUT') {
         setUser(null);
         setUserProfile(null);
+        setLoggedOut(false); // Reset logout flag when Supabase confirms sign out
+      } else if (event === 'SIGNED_IN' && session?.user) {
+        // Clear logout flag when user successfully signs in
+        setLoggedOut(false);
+        localStorage.removeItem('manually_logged_out');
+        localStorage.removeItem('logout_timestamp');
+        setUser(session.user);
+        fetchUserProfile(session.user.id);
       } else if (session?.user && !loggedOut) {
         setUser(session.user);
         fetchUserProfile(session.user.id);
-      } else {
+      } else if (!session?.user) {
         setUser(null);
         setUserProfile(null);
       }
@@ -144,6 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== 'undefined') {
         // Set logout flag in localStorage to persist across page reloads
         localStorage.setItem('manually_logged_out', 'true');
+        localStorage.setItem('logout_timestamp', Date.now().toString());
         
         // Clear all profile data from localStorage
         Object.keys(localStorage).forEach(key => {

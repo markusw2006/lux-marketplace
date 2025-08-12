@@ -20,8 +20,9 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Clear the logout flag when user intentionally logs in
+      // Clear the logout flags when user intentionally logs in
       localStorage.removeItem('manually_logged_out');
+      localStorage.removeItem('logout_timestamp');
       
       if (supabase) {
         // Use Supabase auth
@@ -49,9 +50,18 @@ export default function LoginPage() {
       let userRole = 'customer'; // default fallback
       
       if (supabase) {
-        // For real Supabase auth, we'd get role from user metadata or database
-        // For now, default to customer
-        userRole = 'customer';
+        // Get role from Supabase user data
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.user_metadata?.role) {
+          userRole = session.user.user_metadata.role;
+        } else if (session?.user?.email) {
+          // Check if email indicates admin role
+          if (session.user.email.includes('admin@') || session.user.email === 'admin@test.com') {
+            userRole = 'admin';
+          } else if (session.user.email.includes('pro@') || session.user.email === 'pro@test.com') {
+            userRole = 'pro';
+          }
+        }
       } else {
         // Get role from mock auth
         const currentUser = mockAuth.getCurrentUser();
