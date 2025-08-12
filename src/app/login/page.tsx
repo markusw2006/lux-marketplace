@@ -46,16 +46,19 @@ export default function LoginPage() {
       let userRole = 'customer'; // default fallback
       
       if (supabase) {
-        // Get role from Supabase user data
+        // Get role from Supabase users table
         const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user?.user_metadata?.role) {
-          userRole = session.user.user_metadata.role;
-        } else if (session?.user?.email) {
-          // Check if email indicates admin role
-          if (session.user.email.includes('admin@') || session.user.email === 'admin@test.com') {
-            userRole = 'admin';
-          } else if (session.user.email.includes('pro@') || session.user.email === 'pro@test.com') {
-            userRole = 'pro';
+        
+        if (session?.user?.id) {
+          // Fetch role from users table 
+          const { data: userData } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (userData?.role) {
+            userRole = userData.role;
           }
         }
       } else {
@@ -65,6 +68,8 @@ export default function LoginPage() {
           userRole = currentUser.role;
         }
       }
+      
+      console.log('Final detected role:', userRole);
 
       // Redirect based on role
       switch (userRole) {
