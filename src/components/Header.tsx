@@ -15,22 +15,8 @@ export default function Header() {
   const isPro = userProfile?.role === 'pro';
 
   const handleSignOut = async () => {
-    try {
-      await signOut();
-      
-      // Add a small delay to ensure state is cleared
-      setTimeout(() => {
-        // Force a hard redirect to ensure clean logout and prevent auto re-login
-        window.location.replace('/');
-      }, 100);
-    } catch (error) {
-      console.error('Error during logout:', error);
-      
-      // Even if logout fails, force redirect and clear everything
-      setTimeout(() => {
-        window.location.replace('/');
-      }, 100);
-    }
+    await signOut();
+    router.push('/');
   };
 
   return (
