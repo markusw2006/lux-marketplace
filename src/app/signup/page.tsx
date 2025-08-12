@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import PasswordInput from '@/components/PasswordInput';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -221,36 +222,27 @@ export default function SignUpPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
+            <PasswordInput
               id="password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              required
               value={formData.password}
-              onChange={(e) => handleInputChange('password', e.target.value)}
-              className="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+              onChange={(value) => handleInputChange('password', value)}
+              label="Password"
               placeholder="Password (min. 6 characters)"
+              required
+              minLength={6}
+              className="mt-1 appearance-none relative block text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
             />
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-              Confirm password
-            </label>
-            <input
+            <PasswordInput
               id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              required
               value={formData.confirmPassword}
-              onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-              className="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+              onChange={(value) => handleInputChange('confirmPassword', value)}
+              label="Confirm password"
               placeholder="Confirm password"
+              required
+              className="mt-1 appearance-none relative block text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
             />
           </div>
 

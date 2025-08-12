@@ -39,22 +39,9 @@ export default function Header() {
               <>
                 {/* Admin Navigation */}
                 {isAdmin && (
-                  <div className="flex items-center space-x-1 mr-4 px-3 py-2 bg-red-50 rounded-lg border border-red-200">
-                    <span className="text-xs font-medium text-red-600 uppercase tracking-wide">Admin</span>
-                    <div className="flex items-center space-x-1">
-                      <Link href="/admin/simple" className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
-                        Dashboard
-                      </Link>
-                      <span className="text-red-400">•</span>
-                      <Link href="/admin/simple-pro-apps" className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
-                        Pro Apps
-                      </Link>
-                      <span className="text-red-400">•</span>
-                      <Link href="/admin/whatsapp-test" className="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
-                        WhatsApp
-                      </Link>
-                    </div>
-                  </div>
+                  <Link href="/admin/dashboard" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">
+                    Admin Dashboard
+                  </Link>
                 )}
                 
                 {/* Pro Navigation */}

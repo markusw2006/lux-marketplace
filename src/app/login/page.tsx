@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { mockAuth } from '@/lib/mock-auth';
+import PasswordInput from '@/components/PasswordInput';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -153,19 +154,14 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
+            <PasswordInput
               id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+              onChange={setPassword}
+              label="Password"
               placeholder="Password"
+              required
+              className="mt-1 appearance-none relative block text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
             />
           </div>
 

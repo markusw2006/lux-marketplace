@@ -61,17 +61,33 @@ export default function ProApplicationsPage() {
         })
       });
 
+      const result = await response.json();
+
       if (response.ok) {
         setApplications(apps => apps.map(app => 
           app.application_id === applicationId 
             ? { ...app, status: newStatus, admin_notes: notes, updated_at: new Date().toISOString() }
             : app
         ));
+
+        // Show success message with conversion details
+        if (result.conversion) {
+          alert(`✅ Application approved and pro account created successfully!\n\n` +
+                `User ID: ${result.conversion.user_id}\n` +
+                `Email: ${result.conversion.email}\n` +
+                `Temporary password will be sent to the user.\n` +
+                `The pro will need to complete onboarding and Stripe setup.`);
+        } else {
+          alert(`✅ ${result.message}`);
+        }
+      } else {
+        alert(`❌ Error: ${result.error}`);
       }
       
       setSelectedApplication(null);
     } catch (error) {
       console.error('Error updating application:', error);
+      alert('❌ Failed to update application. Please try again.');
     }
   };
 
@@ -329,6 +345,48 @@ export default function ProApplicationsPage() {
                       </div>
                     </div>
                   </div>
+
+                  {(selectedApplication.status === 'pending' || selectedApplication.status === 'under_review') && (
+                    <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-start">
+                        <div className="w-5 h-5 text-blue-600 mt-0.5">
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div className="ml-3">
+                          <h4 className="text-sm font-medium text-blue-800">What happens when you approve?</h4>
+                          <div className="mt-1 text-sm text-blue-700">
+                            <ul className="list-disc ml-4 space-y-1">
+                              <li>A new user account will be created with 'pro' role</li>
+                              <li>User profile and professional profile will be set up</li>
+                              <li>Temporary password will be generated (to be sent via email)</li>
+                              <li>Pro will need to complete Stripe onboarding for payments</li>
+                              <li>Account status will be marked as pending verification</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedApplication.status === 'approved' && (
+                    <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center">
+                        <div className="w-5 h-5 text-green-600">
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <div className="ml-3">
+                          <h4 className="text-sm font-medium text-green-800">Application Approved</h4>
+                          <p className="mt-1 text-sm text-green-700">
+                            Pro account has been created and the applicant has been notified.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -343,10 +401,11 @@ export default function ProApplicationsPage() {
                         Start Review
                       </button>
                       <button
-                        onClick={() => handleStatusUpdate(selectedApplication.application_id, 'approved', 'Fast-tracked approval')}
+                        onClick={() => handleStatusUpdate(selectedApplication.application_id, 'approved', 'Fast-tracked approval - Pro account created')}
                         className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700"
+                        title="This will create a pro account immediately"
                       >
-                        Approve
+                        ✓ Approve & Create Account
                       </button>
                     </>
                   )}
@@ -354,10 +413,11 @@ export default function ProApplicationsPage() {
                   {selectedApplication.status === 'under_review' && (
                     <>
                       <button
-                        onClick={() => handleStatusUpdate(selectedApplication.application_id, 'approved', 'Application reviewed and approved')}
+                        onClick={() => handleStatusUpdate(selectedApplication.application_id, 'approved', 'Application reviewed and approved - Pro account created')}
                         className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700"
+                        title="This will create a pro account for the applicant"
                       >
-                        Approve
+                        ✓ Approve & Create Account
                       </button>
                       <button
                         onClick={() => handleStatusUpdate(selectedApplication.application_id, 'rejected', 'Application rejected after review')}

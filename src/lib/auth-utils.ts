@@ -46,6 +46,42 @@ export async function requireAdmin(request: NextRequest) {
   }
 }
 
+export async function requireAuth(request: NextRequest) {
+  try {
+    // Check if we're using mock auth
+    if (!supabase) {
+      // Mock mode - check for test user data
+      const authHeader = request.headers.get('authorization');
+      const testUser = mockAuth.getCurrentUser();
+      
+      if (!testUser && !authHeader) {
+        return { error: 'Authentication required', status: 401 };
+      }
+      
+      return { user: testUser || { id: 'mock-user', email: 'test@example.com' } };
+    }
+
+    // Real Supabase mode
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return { error: 'Authentication required', status: 401 };
+    }
+
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    
+    if (error || !user) {
+      return { error: 'Invalid authentication', status: 401 };
+    }
+
+    return { user };
+
+  } catch (error) {
+    console.error('Auth middleware error:', error);
+    return { error: 'Authentication failed', status: 500 };
+  }
+}
+
 export function isAdmin(userRole: string | undefined): boolean {
   return userRole === 'admin';
 }

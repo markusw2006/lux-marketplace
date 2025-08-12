@@ -3,14 +3,39 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useLocale } from '@/contexts/LocaleContext';
 import Link from 'next/link';
+import PasswordInput from '@/components/PasswordInput';
 
 export default function CustomerSettingsPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { t, locale, setLocale } = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Modal states
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
+  // Password change state
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  
+  // Delete account state
+  const [deleteData, setDeleteData] = useState({
+    password: '',
+    confirmationText: ''
+  });
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -19,8 +44,8 @@ export default function CustomerSettingsPage() {
     street: '',
     colonia: '',
     alcaldia: '',
-    city: 'Mexico City',
-    state: 'Mexico City',
+    city: 'Ciudad de México',
+    state: 'CDMX',
     postalCode: ''
   });
 
@@ -107,6 +132,111 @@ export default function CustomerSettingsPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Password change handlers
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordLoading(true);
+    setPasswordError(null);
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError(t('settings.modal.passwords-dont-match'));
+      setPasswordLoading(false);
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError(t('settings.modal.password-requirements'));
+      setPasswordLoading(false);
+      return;
+    }
+
+    try {
+      console.log('Making password change request...');
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      });
+
+      console.log('Response received:', response.status, response.statusText);
+      
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+      
+      let result;
+      try {
+        result = JSON.parse(responseText);
+        console.log('Parsed result:', result);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        console.error('Response text was:', responseText);
+        throw new Error(`Invalid response format: ${responseText}`);
+      }
+
+      if (!response.ok) {
+        console.error('Request failed with status:', response.status);
+        throw new Error(result.error || 'Failed to change password');
+      }
+
+      setPasswordSuccess(true);
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setTimeout(() => {
+        setPasswordSuccess(false);
+        setShowPasswordModal(false);
+      }, 2000);
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Failed to change password');
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  // Delete account handlers
+  const handleDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDeleteLoading(true);
+    setDeleteError(null);
+
+    try {
+      const response = await fetch('/api/auth/delete-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          password: deleteData.password,
+          confirmationText: deleteData.confirmationText,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to delete account');
+      }
+
+      // Clear localStorage
+      if (user) {
+        localStorage.removeItem(`profile_${user.id}`);
+      }
+      localStorage.clear();
+
+      // Sign out and redirect
+      await signOut();
+      alert(t('settings.modal.account-deleted'));
+      router.push('/');
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete account');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -129,9 +259,9 @@ export default function CustomerSettingsPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
-              Welcome, {formData.firstName || user?.user_metadata?.name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Customer'}
+              {t('settings.welcome')}, {formData.firstName || user?.user_metadata?.name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Customer'}
             </h1>
-            <p className="text-sm text-gray-600">Manage your profile information</p>
+            <p className="text-sm text-gray-600">{t('nav.customer')}</p>
           </div>
         </div>
       </div>
@@ -140,11 +270,11 @@ export default function CustomerSettingsPage() {
         {/* Profile Card */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
           <div className="p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-6">Profile Information</h2>
+            <h2 className="text-lg font-medium text-gray-900 mb-6">{t('settings.profile-info')}</h2>
 
             {success && (
               <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-                Profile updated successfully!
+                {t('settings.profile-updated')}
               </div>
             )}
 
@@ -158,7 +288,7 @@ export default function CustomerSettingsPage() {
               {/* Email (read-only) */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Email Address
+                  {t('settings.email')}
                 </label>
                 <input
                   type="email"
@@ -167,7 +297,7 @@ export default function CustomerSettingsPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Email cannot be changed. Contact support if you need to update your email.
+                  {t('settings.email.note')}
                 </p>
               </div>
 
@@ -175,27 +305,27 @@ export default function CustomerSettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">
-                    First Name *
+                    {t('settings.first-name')} *
                   </label>
                   <input
                     type="text"
                     value={formData.firstName}
                     onChange={(e) => handleInputChange('firstName', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                    placeholder="First name"
+                    placeholder={t('settings.first-name')}
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">
-                    Last Name *
+                    {t('settings.last-name')} *
                   </label>
                   <input
                     type="text"
                     value={formData.lastName}
                     onChange={(e) => handleInputChange('lastName', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                    placeholder="Last name"
+                    placeholder={t('settings.last-name')}
                     required
                   />
                 </div>
@@ -204,38 +334,38 @@ export default function CustomerSettingsPage() {
               {/* Phone */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Phone Number
+                  {t('settings.phone')}
                 </label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                  placeholder="Enter your phone number"
+                  placeholder={t('settings.phone')}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Used for booking confirmations and communication with professionals
+                  {t('settings.phone.note')}
                 </p>
               </div>
 
               {/* Address Section */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-3">
-                  Default Service Address
+                  {t('address.default-service')}
                 </label>
                 
                 <div className="space-y-4">
                   {/* Street Address */}
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Street Address *
+                      {t('address.street')} *
                     </label>
                     <input
                       type="text"
                       value={formData.street}
                       onChange={(e) => handleInputChange('street', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                      placeholder="e.g. Av. Insurgentes Sur 123, Int. 4B"
+                      placeholder={t('address.street.placeholder')}
                       required
                     />
                   </div>
@@ -244,20 +374,20 @@ export default function CustomerSettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Neighborhood *
+                        {t('address.neighborhood')} *
                       </label>
                       <input
                         type="text"
                         value={formData.colonia}
                         onChange={(e) => handleInputChange('colonia', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                        placeholder="e.g. Roma Norte"
+                        placeholder={t('address.neighborhood.placeholder')}
                         required
                       />
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Borough *
+                        {t('address.borough')} *
                       </label>
                       <select
                         value={formData.alcaldia}
@@ -265,7 +395,7 @@ export default function CustomerSettingsPage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                         required
                       >
-                        <option value="">Select Borough</option>
+                        <option value="">{t('address.borough.placeholder')}</option>
                         <option value="Álvaro Obregón">Álvaro Obregón</option>
                         <option value="Azcapotzalco">Azcapotzalco</option>
                         <option value="Benito Juárez">Benito Juárez (Roma, Condesa)</option>
@@ -290,7 +420,7 @@ export default function CustomerSettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
-                        City
+                        {t('address.city')}
                       </label>
                       <input
                         type="text"
@@ -302,7 +432,7 @@ export default function CustomerSettingsPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
-                        State
+                        {t('address.state')}
                       </label>
                       <input
                         type="text"
@@ -314,14 +444,14 @@ export default function CustomerSettingsPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Postal Code *
+                        {t('address.postal-code')} *
                       </label>
                       <input
                         type="text"
                         value={formData.postalCode}
                         onChange={(e) => handleInputChange('postalCode', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                        placeholder="06700"
+                        placeholder={t('address.postal-code.placeholder')}
                         maxLength={5}
                         pattern="[0-9]{5}"
                         required
@@ -331,7 +461,7 @@ export default function CustomerSettingsPage() {
                 </div>
 
                 <p className="text-xs text-gray-500 mt-2">
-                  This will be your default address for service bookings. You can change it for individual bookings.
+                  {t('address.default-service.note')}
                 </p>
               </div>
 
@@ -342,7 +472,7 @@ export default function CustomerSettingsPage() {
                     href="/customer/bookings"
                     className="text-sm text-gray-600 hover:text-gray-900 underline"
                   >
-                    Cancel
+                    {t('settings.cancel')}
                   </Link>
                   <button
                     type="submit"
@@ -353,7 +483,7 @@ export default function CustomerSettingsPage() {
                         : 'bg-gray-900 text-white hover:bg-gray-800'
                     }`}
                   >
-                    {loading ? 'Saving...' : 'Save Changes'}
+                    {loading ? t('settings.saving') : t('settings.save-changes')}
                   </button>
                 </div>
               </div>
@@ -361,45 +491,252 @@ export default function CustomerSettingsPage() {
           </div>
         </div>
 
+        {/* Language Settings */}
+        <div className="mt-8 bg-white rounded-lg border border-gray-200 shadow-sm">
+          <div className="p-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-6">{t('settings.language-preference')}</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-3">
+                  {t('settings.change-language')}
+                </label>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => setLocale('en')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      locale === 'en'
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {t('settings.english')}
+                  </button>
+                  <button
+                    onClick={() => setLocale('es')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      locale === 'es'
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {t('settings.spanish')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Additional Settings */}
         <div className="mt-8 bg-white rounded-lg border border-gray-200 shadow-sm">
           <div className="p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Account Actions</h2>
+            <h2 className="text-lg font-medium text-gray-900 mb-4">{t('settings.account-actions')}</h2>
             
             <div className="space-y-4">
               <div className="flex items-center justify-between py-3 border-b border-gray-200">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900">Change Password</h3>
-                  <p className="text-xs text-gray-500">Update your account password</p>
+                  <h3 className="text-sm font-medium text-gray-900">{t('settings.change-password')}</h3>
+                  <p className="text-xs text-gray-500">{t('settings.change-password.desc')}</p>
                 </div>
-                <button className="text-sm text-gray-600 hover:text-gray-900 underline">
-                  Change
+                <button 
+                  onClick={() => setShowPasswordModal(true)}
+                  className="text-sm text-gray-600 hover:text-gray-900 underline"
+                >
+                  {t('settings.change')}
                 </button>
               </div>
               
               <div className="flex items-center justify-between py-3 border-b border-gray-200">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900">Email Notifications</h3>
-                  <p className="text-xs text-gray-500">Manage your notification preferences</p>
+                  <h3 className="text-sm font-medium text-gray-900">{t('settings.email-notifications')}</h3>
+                  <p className="text-xs text-gray-500">{t('settings.email-notifications.desc')}</p>
                 </div>
                 <button className="text-sm text-gray-600 hover:text-gray-900 underline">
-                  Manage
+                  {t('settings.manage')}
                 </button>
               </div>
               
               <div className="flex items-center justify-between py-3">
                 <div>
-                  <h3 className="text-sm font-medium text-red-600">Delete Account</h3>
-                  <p className="text-xs text-gray-500">Permanently delete your account and data</p>
+                  <h3 className="text-sm font-medium text-red-600">{t('settings.delete-account')}</h3>
+                  <p className="text-xs text-gray-500">{t('settings.delete-account.desc')}</p>
                 </div>
-                <button className="text-sm text-red-600 hover:text-red-700 underline">
-                  Delete
+                <button 
+                  onClick={() => setShowDeleteModal(true)}
+                  className="text-sm text-red-600 hover:text-red-700 underline"
+                >
+                  {t('settings.delete')}
                 </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowPasswordModal(false)}></div>
+            
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="mb-4">
+                  <h3 className="text-lg font-medium text-gray-900">{t('settings.modal.change-password')}</h3>
+                </div>
+                
+                {passwordSuccess && (
+                  <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                    {t('settings.modal.password-changed')}
+                  </div>
+                )}
+
+                {passwordError && (
+                  <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                    {passwordError}
+                  </div>
+                )}
+                
+                <form onSubmit={handlePasswordChange} className="space-y-4">
+                  <div>
+                    <PasswordInput
+                      value={passwordData.currentPassword}
+                      onChange={(value) => setPasswordData(prev => ({ ...prev, currentPassword: value }))}
+                      label={t('settings.modal.current-password')}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <PasswordInput
+                      value={passwordData.newPassword}
+                      onChange={(value) => setPasswordData(prev => ({ ...prev, newPassword: value }))}
+                      label={t('settings.modal.new-password')}
+                      required
+                      minLength={6}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">{t('settings.modal.password-requirements')}</p>
+                  </div>
+                  
+                  <div>
+                    <PasswordInput
+                      value={passwordData.confirmPassword}
+                      onChange={(value) => setPasswordData(prev => ({ ...prev, confirmPassword: value }))}
+                      label={t('settings.modal.confirm-new-password')}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="flex justify-end space-x-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordModal(false)}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                    >
+                      {t('settings.cancel')}
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={passwordLoading}
+                      className={`px-4 py-2 text-sm font-medium text-white rounded-lg ${
+                        passwordLoading 
+                          ? 'bg-gray-400 cursor-not-allowed' 
+                          : 'bg-gray-900 hover:bg-gray-800'
+                      }`}
+                    >
+                      {passwordLoading ? t('settings.saving') : t('settings.modal.confirm')}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowDeleteModal(false)}></div>
+            
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="mb-4">
+                  <h3 className="text-lg font-medium text-red-600">{t('settings.modal.delete-account')}</h3>
+                </div>
+                
+                <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-red-800">{t('settings.modal.delete-warning')}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {deleteError && (
+                  <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                    {deleteError}
+                  </div>
+                )}
+                
+                <form onSubmit={handleDeleteAccount} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('settings.modal.delete-confirmation')}
+                    </label>
+                    <input
+                      type="text"
+                      value={deleteData.confirmationText}
+                      onChange={(e) => setDeleteData(prev => ({ ...prev, confirmationText: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      placeholder="DELETE MY ACCOUNT"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <PasswordInput
+                      value={deleteData.password}
+                      onChange={(value) => setDeleteData(prev => ({ ...prev, password: value }))}
+                      label={t('settings.modal.delete-password')}
+                      required
+                      className="focus:ring-red-500 focus:border-red-500"
+                    />
+                  </div>
+                  
+                  <div className="flex justify-end space-x-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteModal(false)}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                    >
+                      {t('settings.cancel')}
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={deleteLoading || deleteData.confirmationText !== 'DELETE MY ACCOUNT'}
+                      className={`px-4 py-2 text-sm font-medium text-white rounded-lg ${
+                        deleteLoading || deleteData.confirmationText !== 'DELETE MY ACCOUNT'
+                          ? 'bg-gray-400 cursor-not-allowed' 
+                          : 'bg-red-600 hover:bg-red-700'
+                      }`}
+                    >
+                      {deleteLoading ? t('settings.saving') : t('settings.delete')}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
