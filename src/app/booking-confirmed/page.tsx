@@ -88,7 +88,7 @@ function BookingConfirmedContent() {
 {t('booking.view-bookings')}
           </Link>
           <Link 
-            href="/" 
+            href="/#services" 
             className="flex-1 bg-white text-gray-900 border border-gray-300 py-3 px-6 rounded-lg font-medium text-center hover:bg-gray-50 transition-colors"
           >
             {t('booking.book-another')}

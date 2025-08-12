@@ -15,8 +15,15 @@ export default function Header() {
   const isPro = userProfile?.role === 'pro';
 
   const handleSignOut = async () => {
-    await signOut();
-    router.push('/');
+    try {
+      await signOut();
+      // Force a hard redirect to ensure clean logout
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Even if logout fails, redirect to home
+      window.location.href = '/';
+    }
   };
 
   return (

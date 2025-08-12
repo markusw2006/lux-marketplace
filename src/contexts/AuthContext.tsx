@@ -87,13 +87,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    if (supabase) {
-      await supabase.auth.signOut();
-    } else {
-      // Use mock auth sign out
-      mockAuth.signOut();
+    try {
+      if (supabase) {
+        await supabase.auth.signOut();
+      } else {
+        // Use mock auth sign out
+        mockAuth.signOut();
+      }
+    } catch (error) {
+      console.error('Error signing out:', error);
+    } finally {
+      // Always clear local state regardless of Supabase success/failure
       setUser(null);
       setUserProfile(null);
+      
+      // Clear any stored profile data
+      if (typeof window !== 'undefined') {
+        // Clear all profile data from localStorage
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('profile_')) {
+            localStorage.removeItem(key);
+          }
+        });
+        
+        // Clear other auth-related data
+        localStorage.removeItem('mockUser');
+      }
     }
   };
 
